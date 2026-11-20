@@ -1,6 +1,7 @@
 /* VITTEZA — custom Filament v5 theme. Brand palette per TZ §17.3.
    Fonts self-hosted (no CDN) for 152-ФЗ compliance. */
 
+@import '../../vendor/filament/filament/dist/theme.css';
 @import './fonts.css';
 @import 'tailwindcss';
 
@@ -139,4 +140,4 @@ a.fi-link,
   color: #38BDF8;
 }
 
-[exit 0]
+
