@@ -1,0 +1,139 @@
+/* VITTEZA — custom Filament v5 theme. Brand palette per TZ §17.3.
+   Fonts self-hosted (no CDN) for 152-ФЗ compliance. */
+
+@import './fonts.css';
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../vendor/filament/**/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@theme {
+  --font-sans: 'Golos Text', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  --font-heading: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+
+  --color-brand-primary: #0B1220;
+  --color-brand-bg: #F3F4F6;
+  --color-brand-accent: #38BDF8;
+  --color-brand-surface-1: #0F1A2E;
+  --color-brand-surface-2: #16243D;
+  --color-brand-text-dark: #E6EDF5;
+  --color-brand-text-light: #0B1220;
+  --color-brand-border-light: #E5E7EB;
+  --color-brand-border-dark: #1F2D44;
+  --color-success: #22C55E;
+  --color-warning: #F59E0B;
+  --color-danger: #EF4444;
+  --color-neutral-status: #64748B;
+}
+
+/* Default theme mode = dark (Filament v5 falls back to this CSS var
+   when the user has not chosen a mode). */
+:root {
+  --default-theme-mode: dark;
+}
+
+/* Headings / UI / buttons use Manrope; body & tables use Golos Text. */
+.fi-brand,
+.fi-header-heading,
+.fi-page-header-heading,
+.fi-section-header-heading,
+.fi-sidebar-group-label,
+.fi-tabs-tab,
+.fi-form-field-label,
+.fi-btn,
+.fi-topbar-item-btn,
+.fi-sidebar-item-btn,
+.fi-sidebar-group-btn,
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+}
+
+/* ===== DARK theme (default) — TZ: Primary #0B1220, surfaces #0F1A2E/#16243D ===== */
+.dark body,
+.dark .fi-app,
+.dark .fi-main,
+.dark .fi-main-ctn,
+.dark .fi-page,
+.dark .fi-page-main {
+  background-color: #0B1220 !important;
+  color: #E6EDF5 !important;
+}
+.dark .fi-sidebar,
+.dark .fi-sidebar-header,
+.dark .fi-sidebar-ctn,
+.dark .fi-topbar,
+.dark .fi-topbar-ctn {
+  background-color: #0B1220 !important;
+  color: #E6EDF5 !important;
+  border-color: #1F2D44 !important;
+}
+.dark .fi-main-content,
+.dark .fi-main-content-ctn {
+  background-color: #0F1A2E !important;
+  color: #E6EDF5 !important;
+}
+.dark .fi-card,
+.dark .fi-section,
+.dark .fi-section-content,
+.dark .fi-tables-container {
+  background-color: #16243D !important;
+  border-color: #1F2D44 !important;
+  color: #E6EDF5 !important;
+}
+.dark .fi-sidebar-item-btn:hover,
+.dark .fi-topbar-item-btn:hover {
+  background-color: #16243D !important;
+}
+.dark .fi-sidebar-item-active .fi-sidebar-item-btn {
+  background-color: rgba(56, 189, 248, 0.14) !important;
+  color: #38BDF8 !important;
+}
+
+/* ===== LIGHT theme — TZ: Background #F3F4F6, text #0B1220, borders #E5E7EB ===== */
+body,
+.fi-app,
+.fi-main,
+.fi-main-ctn,
+.fi-page,
+.fi-page-main {
+  background-color: #F3F4F6;
+  color: #0B1220;
+}
+.fi-sidebar,
+.fi-sidebar-header,
+.fi-sidebar-ctn,
+.fi-topbar,
+.fi-topbar-ctn {
+  background-color: #FFFFFF;
+  color: #0B1220;
+  border-color: #E5E7EB;
+}
+.fi-card,
+.fi-section,
+.fi-section-content,
+.fi-tables-container {
+  background-color: #F3F4F6;
+  border-color: #E5E7EB;
+  color: #0B1220;
+}
+.fi-sidebar-item-btn:hover,
+.fi-topbar-item-btn:hover {
+  background-color: #E5E7EB;
+}
+
+/* Accent links / active — #38BDF8 in dark (AAA 8.74), #0369A1 in light (AA 5.39).
+   #38BDF8 on light bg fails WCAG (1.95), so light theme uses a darker accent for text. */
+.fi-text-link,
+a.fi-link,
+.fi-link,
+.fi-sidebar-item-active .fi-sidebar-item-label {
+  color: #0369A1;
+}
+.dark .fi-text-link,
+.dark a.fi-link,
+.dark .fi-link,
+.dark .fi-sidebar-item-active .fi-sidebar-item-label {
+  color: #38BDF8;
+}
