@@ -7,6 +7,7 @@
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../vendor/filament/**/*.blade.php';
 @source '../../storage/framework/views/*.php';
+@source '../views';
 
 @theme {
   --font-sans: 'Golos Text', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
@@ -137,3 +138,5 @@ a.fi-link,
 .dark .fi-sidebar-item-active .fi-sidebar-item-label {
   color: #38BDF8;
 }
+
+[exit 0]
