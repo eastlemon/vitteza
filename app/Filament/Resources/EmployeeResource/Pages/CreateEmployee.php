@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\EmployeeResource\Pages;
 
 use App\Filament\Resources\EmployeeResource;
+use App\Models\MailDomain;
 use App\Models\Mailbox;
 use App\Models\User;
 use Filament\Resources\Pages\CreateRecord;
@@ -41,10 +42,16 @@ class CreateEmployee extends CreateRecord
             $mailPassword = null;
 
             if (! empty($data['create_mailbox'])) {
-                $domainRow = DB::table('mail_domains')
-                    ->where('domain', 'vitteza.ru')
-                    ->where('is_active', 1)
-                    ->first();
+                $domainRow = MailDomain::activeByName('vitteza.ru');
+
+                // Защита от рассинхронизации БД (домен не засеян) вместо
+                // падения на null->id: создаём домен идемпотентно.
+                if (! $domainRow) {
+                    $domainRow = MailDomain::firstOrCreate(
+                        ['domain' => 'vitteza.ru'],
+                        ['quota_mb' => 2048, 'is_active' => true],
+                    );
+                }
 
                 $mailEmail = $email;
                 [$local] = explode('@', $mailEmail);
