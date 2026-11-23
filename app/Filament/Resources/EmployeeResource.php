@@ -40,6 +40,16 @@ class EmployeeResource extends Resource
         return auth()->user()?->isAdmin() === true;
     }
 
+    /**
+     * У модели User нет политики, поэтому без явного override Filament в
+     * нестрогом режиме разрешал бы создание всем. Раздел административный —
+     * создаёт сотрудников только администратор.
+     */
+    public static function canCreate(): bool
+    {
+        return auth()->user()?->isAdmin() === true;
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
