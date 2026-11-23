@@ -105,8 +105,12 @@ class RatingPage extends Page
         ];
     }
 
+    /**
+     * Рейтинг логистов — только для администратора: содержит доходы
+     * всех сотрудников компании (§16 — административный разрез).
+     */
     public static function canAccess(): bool
     {
-        return auth()->check();
+        return auth()->user()?->isAdmin() === true;
     }
 }

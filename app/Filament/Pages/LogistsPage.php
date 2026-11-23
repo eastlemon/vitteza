@@ -84,9 +84,12 @@ class LogistsPage extends Page
         ];
     }
 
+    /**
+     * Раздел «Логисты» — только для администратора (см. EmployeeResource:
+     * административные данные сотрудников недоступны обычным ролям).
+     */
     public static function canAccess(): bool
     {
-        $u = auth()->user();
-        return $u && ($u->isAdmin() || $u->hasCompetency('logists.view'));
+        return auth()->user()?->isAdmin() === true;
     }
 }

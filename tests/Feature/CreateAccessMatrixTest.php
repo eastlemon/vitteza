@@ -7,8 +7,10 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
- * Матрица прав на создание записей (фикс: «ни в одной роли нет возможности
- * создавать записи» — кнопка CreateAction отсутствовала на List-страницах).
+ * Матрица прав на создание записей и доступа к административным разделам.
+ * (фикс: «ни в одной роли нет возможности создавать записи» — кнопка
+ * CreateAction отсутствовала на List-страницах; логисты/рейтинг должны
+ * быть доступны только админу; корень сайта ведёт сразу в /admin)
  *
  * Каждый сценарий — отдельный тест-метод: middleware AuthenticateSession
  * хранит в сессии хэш пароля и разлогинивает при смене actingAs-пользователя
@@ -142,5 +144,53 @@ class CreateAccessMatrixTest extends TestCase
         // к локали: 'logout' — имя действия/URL, а не перевод.
         $this->assertStringContainsString('fi-user-menu', $content, 'Юзер-меню топбара должно остаться');
         $this->assertStringContainsString('logout', $content, 'Действие выхода должно остаться доступным');
+    }
+
+    /**
+     * «Логисты» и «Рейтинг» — административные разделы: обычный
+     * (не-админ) пользователь не должен их видеть даже в меню.
+     */
+    public function test_admin_can_access_logists_and_rating(): void
+    {
+        $admin = $this->makeUser('admin@test.ru', 'admin', []);
+        $resp = $this->actingAs($admin)->get('/admin/logists');
+        $this->assertSame(200, $resp->status(), 'admin GET /admin/logists');
+        $resp = $this->actingAs($admin)->get('/admin/rating');
+        $this->assertSame(200, $resp->status(), 'admin GET /admin/rating');
+    }
+
+    public function test_logists_and_rating_are_forbidden_for_non_admin(): void
+    {
+        // Логист с широчайшими компетенциями — но НЕ админ
+        $logist = $this->makeUser('logist@test.ru', 'user', [
+            'trips.view', 'trips.view_all', 'trips.manage', 'finance.view',
+            'logists.view', 'drivers.view', 'customers.view', 'cargo.view',
+        ]);
+        $this->actingAs($logist);
+
+        foreach (['/admin/logists', '/admin/rating'] as $path) {
+            $resp = $this->get($path);
+            $this->assertSame(403, $resp->status(), "logist GET $path должен быть 403, получено {$resp->status()}");
+        }
+
+        // И в сайдбаре разделов быть не должно
+        $resp = $this->get('/admin');
+        $this->assertSame(200, $resp->status());
+        $this->assertStringNotContainsString('href="/admin/logists"', $resp->getContent(), 'ссылка «Логисты» не должна быть в меню логиста');
+        $this->assertStringNotContainsString('href="/admin/rating"', $resp->getContent(), 'ссылка «Рейтинг» не должна быть в меню логиста');
+    }
+
+    /** Корень сайта редиректит на админку (а гость — на форму входа). */
+    public function test_root_redirects_to_admin(): void
+    {
+        $resp = $this->get('/');
+        $this->assertSame(301, $resp->status(), 'GET / должен дать 301');
+        $this->assertSame('/admin', $resp->headers->get('Location'), 'редирект должен вести на /admin');
+
+        // Залогиненный админ тоже уходит на /admin (уже в панель)
+        $admin = $this->makeUser('admin@test.ru', 'admin', []);
+        $resp = $this->actingAs($admin)->get('/');
+        $this->assertSame(301, $resp->status());
+        $this->assertSame('/admin', $resp->headers->get('Location'));
     }
 }
