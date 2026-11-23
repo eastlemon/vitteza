@@ -1,0 +1,135 @@
+From 0bf8df6fcdb9abd1cc46e84e48d94d881bf03759 Mon Sep 17 00:00:00 2001
+From: VITTEZA Dev <dev@vitteza.ru>
+Date: Sun, 22 Nov 2026 12:18:19 +0000
+Subject: [PATCH 2/2] fix(docker): unblock build and harden runtime stage
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Three fixes found after first real podman build attempt:
+
+1. vendor stage failed with 'The zip extension and unzip/7z commands
+   are both missing': php:8.4-cli ships neither zip ext nor unzip.
+   Install unzip (+git fallback) before composer install.
+
+2. mysqli was missing in the runtime image while wait-for-db.php
+   uses it — add to docker-php-ext-install list.
+
+3. bootstrap/cache anonymous volume shadowed packages.php written
+   by package:discover at build time with a stale copy from the
+   repo on first start. Drop the app_cache volume; also reorder
+   mkdir/chown before artisan scripts (they write to storage).
+
+Re-verified locally from scratch without .env (as in build
+context): composer install, package:discover, filament:upgrade,
+npm ci + vite build, sh -n, php -l, yaml parse.
+---
+ Containerfile      | 24 +++++++++++++++++-------
+ README-PODMAN.md   |  3 +--
+ docker-compose.yml |  5 +++--
+ 3 files changed, 21 insertions(+), 11 deletions(-)
+
+diff --git a/Containerfile b/Containerfile
+index 80520df..24022d9 100644
+--- a/Containerfile
++++ b/Containerfile
+@@ -15,6 +15,14 @@ WORKDIR /app
+ # composer из официального образа — совместим с PHP 8.4 финальной стадии
+ COPY --from=docker.io/library/composer:2 /usr/bin/composer /usr/bin/composer
+ 
++# Распаковка dist-архивов: в php:8.4-cli нет ни расширения zip, ни unzip
++# («The zip extension and unzip/7z commands are both missing»). git —
++# запасной вариант, если пакет придётся ставить из source.
++RUN apt-get update && apt-get install -y --no-install-recommends \
++        unzip \
++        git \
++    && apt-get clean && rm -rf /var/lib/apt/lists/*
++
+ # Сначала только манифесты: слой с зависимостями кэшируется,
+ # пока не меняются composer.json / composer.lock.
+ COPY composer.json composer.lock ./
+@@ -50,7 +58,8 @@ RUN npm run build
+ FROM docker.io/library/php:8.4-apache AS app
+ 
+ # Расширения из ТЗ §4.4: pdo_mysql (БД), gd (изображения), intl (локаль),
+-# zip, bcmath, exif. mbstring, curl, openssl, sqlite уже собраны в базовом образе.
++# zip, bcmath, exif; mysqli — для docker/wait-for-db.php (ожидание MySQL).
++# mbstring, curl, openssl, sqlite уже собраны в базовом образе.
+ RUN apt-get update && apt-get install -y --no-install-recommends \
+         libfreetype6-dev \
+         libjpeg62-turbo-dev \
+@@ -58,7 +67,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
+         libicu-dev \
+         libzip-dev \
+     && docker-php-ext-configure gd --with-freetype --with-jpeg \
+-    && docker-php-ext-install -j"$(nproc)" gd intl zip bcmath exif pdo_mysql \
++    && docker-php-ext-install -j"$(nproc)" gd intl zip bcmath exif pdo_mysql mysqli \
+     && apt-get clean && rm -rf /var/lib/apt/lists/*
+ 
+ # Apache: mod_rewrite для public/.htaccess; свой vhost с DocumentRoot=public
+@@ -79,13 +88,14 @@ COPY --from=frontend /app/public/build ./public/build
+ # здесь уже есть весь код и все расширения.
+ # Каталоги storage/framework/* попадают в образ как пустые (в .dockerignore
+ # исключено только их содержимое) — Laravel требует их для компиляции видов,
+-# сессий и кеша.
+-RUN php artisan package:discover --ansi \
+-    && php artisan filament:upgrade --ansi \
+-    && mkdir -p storage/framework/cache/data storage/framework/cache/locks \
++# сессий и кеша. mkdir/chown — ДО artisan-скриптов: package:discover пишет
++# в storage и bootstrap/cache.
++RUN mkdir -p storage/framework/cache/data storage/framework/cache/locks \
+         storage/framework/sessions storage/framework/views storage/framework/testing \
+         storage/logs storage/app/private storage/app/public \
+-    && chown -R www-data:www-data storage bootstrap/cache
++    && chown -R www-data:www-data storage bootstrap/cache \
++    && php artisan package:discover --ansi \
++    && php artisan filament:upgrade --ansi
+ 
+ COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+ COPY docker/wait-for-db.php /usr/local/bin/wait-for-db.php
+diff --git a/README-PODMAN.md b/README-PODMAN.md
+index 058e0cf..0c987b0 100644
+--- a/README-PODMAN.md
++++ b/README-PODMAN.md
+@@ -10,7 +10,7 @@ # VITTEZA — локальный запуск на Podman
+ Приложение собирается в один самодостаточный образ (многостадийная сборка):
+ `vendor` (composer, без dev-пакетов) → `frontend` (npm + Vite, тема Filament §17) →
+ `app` (PHP 8.4 + Apache). Код в образе, данные — в именованных томах
+-(`mysql_data`, `app_storage`, `app_cache`).
++(`mysql_data`, `app_storage`).
+ 
+ ## Быстрый старт
+ 
+@@ -97,7 +97,6 @@ ## Разработка без пересборки образа
+     volumes:
+       - ./:/var/www/html:Z
+       - app_storage:/var/www/html/storage
+-      - app_cache:/var/www/html/bootstrap/cache
+ ```
+ 
+ После этого изменения PHP-кода подхватываются сразу (opcache
+diff --git a/docker-compose.yml b/docker-compose.yml
+index f22bff6..5f43efe 100644
+--- a/docker-compose.yml
++++ b/docker-compose.yml
+@@ -41,8 +41,10 @@ services:
+       # Код монтируется только в DEV-режиме, чтобы xdebug-вать без пересборки.
+       # По умолчанию отключён — образ самодостаточен (см. README-PODMAN.md).
+       # - ./:/var/www/html:Z
++      # bootstrap/cache НЕ монтируется томом: package:discover при сборке
++      # пишет туда packages.php, и анонимный том при первом старте скрыл бы
++      # его устаревшей копией из репозитория. Каталог живёт в образе.
+       - app_storage:/var/www/html/storage
+-      - app_cache:/var/www/html/bootstrap/cache
+     restart: unless-stopped
+ 
+   mysql:
+@@ -69,5 +71,4 @@ services:
+ 
+ volumes:
+   app_storage:
+-  app_cache:
+   mysql_data:
+-- 
+2.47.3
+

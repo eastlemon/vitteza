@@ -1,0 +1,74 @@
+# VITTEZA — локальное окружение на Podman.
+# Совместимо и с docker compose: подмножество spec без podman-специфики.
+#
+#   podman compose up -d --build     # собрать и запустить
+#   podman compose logs -f app       # смотреть логи приложения
+#   podman compose down              # остановить (том mysql_data останется)
+#   podman compose down -v           # остановить и удалить данные БД
+#
+# Приложение: http://localhost:8080  (панель: /admin, вход admin@vitteza.ru)
+
+name: vitteza
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Containerfile
+    image: localhost/vitteza-app:latest
+    container_name: vitteza-app
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      APP_ENV: local
+      APP_DEBUG: ${APP_DEBUG:-true}
+      APP_URL: ${APP_URL:-http://localhost:8080}
+      APP_ADMIN_PASSWORD: ${APP_ADMIN_PASSWORD:-password}
+      APP_DEMO_PASSWORD: ${APP_DEMO_PASSWORD:-password}
+      DB_HOST: mysql
+      DB_PORT: "3306"
+      DB_DATABASE: ${DB_DATABASE:-vitteza}
+      DB_USERNAME: ${DB_USERNAME:-vitteza}
+      DB_PASSWORD: ${DB_PASSWORD:-vitteza_dev_password}
+      SESSION_DRIVER: database
+      QUEUE_CONNECTION: database
+      CACHE_STORE: database
+      MAIL_MAILER: log
+    ports:
+      - "${APP_PORT:-8080}:80"
+    volumes:
+      # Код монтируется только в DEV-режиме, чтобы xdebug-вать без пересборки.
+      # По умолчанию отключён — образ самодостаточен (см. README-PODMAN.md).
+      # - ./:/var/www/html:Z
+      # bootstrap/cache НЕ монтируется томом: package:discover при сборке
+      # пишет туда packages.php, и анонимный том при первом старте скрыл бы
+      # его устаревшей копией из репозитория. Каталог живёт в образе.
+      - app_storage:/var/www/html/storage
+    restart: unless-stopped
+
+  mysql:
+    image: docker.io/library/mysql:8.4
+    container_name: vitteza-mysql
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-vitteza}
+      MYSQL_USER: ${DB_USERNAME:-vitteza}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-vitteza_dev_password}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_dev_password}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      # TCP-ping без пароля: код 0 означает «сервер жив» (даже при Access
+      # denied). 127.0.0.1 вместо localhost — минуя сокет временного
+      # сервера init-фазы, чтобы не поймать ложную готовность.
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 30s
+    restart: unless-stopped
+    # Порт наружу не пробрасываем — доступ только из сети compose.
+
+volumes:
+  app_storage:
+  mysql_data:
