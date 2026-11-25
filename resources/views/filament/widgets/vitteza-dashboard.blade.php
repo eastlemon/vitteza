@@ -1,6 +1,6 @@
 @php($d = $this->compute())
 
-<div class="space-y-6">
+<div class="space-y-12">
     {{-- Period switcher --}}
     <div class="flex items-center justify-between flex-wrap gap-2">
         <h2 class="text-xl font-semibold" style="font-family:var(--font-heading)">{{ __('dashboard.title') }} — {{ $d['periodLabel'] }}</h2>
