@@ -92,10 +92,10 @@ class VittezaDashboardWidget extends Widget
         $incomeTotal = (float) (clone $incomeQuery)->sum('income_total');
 
         // По дням месяца: число рейсов + доход логиста (по load_date).
-        // strftime вместо DAY(): работает и в MySQL, и в sqlite (тесты).
+        // DAYOFMONTH(): MySQL-диалект — SQLite из проекта удалён, прод и тесты на MySQL.
         $byDayRows = (clone $tripQuery)
-            ->selectRaw("CAST(strftime('%d', load_date) AS INTEGER) as d, COUNT(*) as cnt, COALESCE(SUM(income_logist),0) as inc")
-            ->groupBy(DB::raw("strftime('%d', load_date)"))
+            ->selectRaw("DAYOFMONTH(load_date) as d, COUNT(*) as cnt, COALESCE(SUM(income_logist),0) as inc")
+            ->groupBy(DB::raw('DAYOFMONTH(load_date)'))
             ->get()
             ->keyBy('d');
         $days = [];
@@ -114,8 +114,8 @@ class VittezaDashboardWidget extends Widget
         $completedStatuses = ['completed', 'paid'];
         $calRows = (clone $tripQuery)
             ->whereIn('status', $completedStatuses)
-            ->selectRaw("CAST(strftime('%d', load_date) AS INTEGER) as d, COUNT(*) as cnt")
-            ->groupBy(DB::raw("strftime('%d', load_date)"))
+            ->selectRaw("DAYOFMONTH(load_date) as d, COUNT(*) as cnt")
+            ->groupBy(DB::raw('DAYOFMONTH(load_date)'))
             ->pluck('cnt', 'd');
         $calendarCounts = [];
         for ($d = 1; $d <= $daysInMonth; $d++) {
