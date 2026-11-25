@@ -6,22 +6,22 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Почтовые таблицы для Postfix/Dovecot (ТЗ §7.3).
- * Живут в одной БД с таблицами Laravel и связаны внешним ключом
- * mail_users.user_id → users.id, чтобы ресурс «Сотрудники» создавал
- * пользователя системы и ящик одной транзакцией.
+ * Mail tables for Postfix/Dovecot (Spec §7.3).
+ * Live in the same DB as the Laravel tables and are linked by the foreign key
+ * mail_users.user_id → users.id, so that the "Employees" resource creates
+ * the system user and the mailbox in one transaction.
  *
- * Точные DDL из ТЗ сохранены без изменений:
+ * The exact DDL from the Spec is kept unchanged:
  *  - mail_domains: INT UNSIGNED id, domain UNIQUE, quota_mb, is_active;
  *  - mail_users:   BIGINT UNSIGNED id, user_id (SET NULL), email UNIQUE,
  *                  SHA512-CRYPT password, local_part, domain_id (FK), maildir,
  *                  quota_mb, is_active;
  *  - mail_aliases: source/destination, is_active.
- * Индексы idx_mail_users_email / idx_mail_aliases_source покрываются
- * UNIQUE-ограничениями и явными index() соответственно.
+ * The indexes idx_mail_users_email / idx_mail_aliases_source are covered
+ * by UNIQUE constraints and explicit index() respectively.
  *
- * Postfix/Dovecot подключаются пользователями postfix_ro / dovecot_ro
- * с правами SELECT (см. §7.3) — на миграции это не влияет.
+ * Postfix/Dovecot connect as postfix_ro / dovecot_ro users
+ * with SELECT privileges (see §7.3) — this does not affect migrations.
  */
 return new class extends Migration
 {
@@ -37,9 +37,9 @@ return new class extends Migration
 
         Schema::create('mail_users', function (Blueprint $table) {
             $table->id();                                          // BIGINT UNSIGNED
-            $table->unsignedBigInteger('user_id')->nullable();     // связь с users.id
+            $table->unsignedBigInteger('user_id')->nullable();     // link to users.id
             $table->string('email', 190)->unique();                // user@vitteza.ru
-            $table->string('password', 255);                       // SHA512-CRYPT (для Dovecot)
+            $table->string('password', 255);                       // SHA512-CRYPT (for Dovecot)
             $table->string('local_part', 64);
             $table->unsignedInteger('domain_id');                  // FK → mail_domains.id
             $table->string('maildir', 190);                        // vitteza.ru/user/
@@ -66,14 +66,14 @@ return new class extends Migration
 
         $now = now();
 
-        // Домен по умолчанию — сразу в миграции, чтобы чистая установка
-        // и RefreshDatabase в тестах всегда имели vitteza.ru (ТЗ §7.3).
+        // Default domain — right in the migration, so that a clean install
+        // and RefreshDatabase in tests always have vitteza.ru (Spec §7.3).
         DB::table('mail_domains')->updateOrInsert(
             ['domain' => 'vitteza.ru'],
             ['quota_mb' => 2048, 'is_active' => 1, 'created_at' => $now, 'updated_at' => $now],
         );
 
-        // Стандартные ящики-псевдонимы домена (ТЗ §6.3) направляем админу.
+        // Standard domain alias mailboxes (Spec §6.3) are routed to the admin.
         DB::table('mail_aliases')->insert([
             ['source' => 'info@vitteza.ru', 'destination' => 'admin@vitteza.ru', 'is_active' => 1, 'created_at' => $now, 'updated_at' => $now],
             ['source' => 'sales@vitteza.ru', 'destination' => 'admin@vitteza.ru', 'is_active' => 1, 'created_at' => $now, 'updated_at' => $now],

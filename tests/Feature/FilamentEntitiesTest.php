@@ -6,17 +6,17 @@ use App\Models\User;
 use Tests\TestCase;
 
 /**
- * Проверяет, что все доменные Filament-ресурсы и виртуальные страницы
- * рендерятся без ошибок (HTTP 200) под администратором.
- * Read-only GET-запросы против боевой MySQL-базы (без RefreshDatabase).
+ * Checks that all domain Filament resources and virtual pages
+ * render without errors (HTTP 200) as the administrator.
+ * Read-only GET requests against the production MySQL DB (no RefreshDatabase).
  */
 class FilamentEntitiesTest extends TestCase
 {
     protected function setUp(): void
     {
         parent::setUp();
-        // phpunit.xml форсирует sqlite :memory: (а pdo_sqlite не установлен).
-        // Перенастраиваем mysql-подключение на боевую БД, читая .env вручную.
+        // phpunit.xml forces sqlite :memory: (and pdo_sqlite is not installed).
+        // Reconfigure the mysql connection to the production DB, reading .env manually.
         $env = [];
         if (is_file(base_path('.env'))) {
             foreach (file(base_path('.env')) as $line) {
@@ -49,7 +49,7 @@ class FilamentEntitiesTest extends TestCase
         $admin = User::where('email', 'admin@vitteza.ru')->first();
         $this->assertNotNull($admin, 'admin user admin@vitteza.ru not found');
 
-        // PreventRequestForgery требует, чтобы host запроса совпадал с APP_URL.
+        // PreventRequestForgery requires the request host to match APP_URL.
         $base = rtrim(config('app.url'), '/');
 
         $paths = [
@@ -72,9 +72,9 @@ class FilamentEntitiesTest extends TestCase
             $this->assertSame(200, $resp->status(), "GET $path returned {$resp->status()}");
         }
 
-        // Дашборд реально выводит контент виджета (не пустая страница)
+        // The dashboard actually renders the widget content (not an empty page)
         $dash = $this->actingAs($admin)->get($base . '/admin');
-        $this->assertStringContainsString('Дашборд', $dash->getContent() ?? '');
-        $this->assertStringContainsString('Доход логиста', $dash->getContent() ?? '');
+        $this->assertStringContainsString(__('dashboard.title'), $dash->getContent() ?? '');
+        $this->assertStringContainsString(__('common.income_logist'), $dash->getContent() ?? '');
     }
 }

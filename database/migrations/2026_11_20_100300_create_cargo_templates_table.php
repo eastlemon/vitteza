@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Шаблоны грузов — типовые грузы с параметрами (ТЗ §14.6).
+ * Cargo templates — typical cargo with parameters (Spec §14.6).
  */
 return new class extends Migration
 {

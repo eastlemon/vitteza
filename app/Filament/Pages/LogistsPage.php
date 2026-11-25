@@ -9,14 +9,17 @@ use Filament\Pages\Page;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Вкладка «Логисты» (ТЗ §12) — виртуальная: агрегация по users + trips
- * за выбранный календарный месяц (по умолчанию — текущий, §12.3).
+ * The "Logists" tab (Spec §12) is virtual: an aggregation over users + trips
+ * for the selected calendar month (current by default, §12.3).
  */
 class LogistsPage extends Page
 {
     protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-user-group';
 
-    protected static ?string $navigationLabel = 'Логисты';
+    public static function getNavigationLabel(): string
+    {
+        return __('logists.nav');
+    }
 
     protected static ?string $slug = 'logists';
 
@@ -85,8 +88,8 @@ class LogistsPage extends Page
     }
 
     /**
-     * Раздел «Логисты» — только для администратора (см. EmployeeResource:
-     * административные данные сотрудников недоступны обычным ролям).
+     * The "Logists" section — admin only (see EmployeeResource:
+     * administrative employee data is not available to regular roles).
      */
     public static function canAccess(): bool
     {

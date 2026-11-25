@@ -6,7 +6,7 @@ use App\Models\Driver;
 use App\Models\User;
 
 /**
- * Доступ к водителям по компетенциям (ТЗ §8.2, §8.4).
+ * Driver access by competencies (Spec §8.2, §8.4).
  */
 class DriverPolicy
 {

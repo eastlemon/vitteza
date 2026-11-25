@@ -10,16 +10,19 @@ use Filament\Pages\Page;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Рейтинг логистов (ТЗ §16). Балл = W_рейсов × (рейсы/max) + W_дохода × (доход/max),
- * нормировка по максимуму за период. Период — календарный месяц (по умолч. текущий).
- * Источник — income_entries (оплаченные рейсы, синхронно с дашбордом §15).
- * Администратор видит весь рейтинг; пользователь — только свою строку и общее число участников.
+ * Logists rating (Spec §16). Score = W_trips × (trips/max) + W_income × (income/max),
+ * normalized by the period maximum. Period — calendar month (current by default).
+ * Source — income_entries (paid trips, in sync with the dashboard §15).
+ * The administrator sees the full rating; a user — only their own row and the total participant count.
  */
 class RatingPage extends Page
 {
     protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-trophy';
 
-    protected static ?string $navigationLabel = 'Рейтинг логистов';
+    public static function getNavigationLabel(): string
+    {
+        return __('rating.nav');
+    }
 
     protected static ?string $slug = 'rating';
 
@@ -83,7 +86,7 @@ class RatingPage extends Page
             return $r;
         })->sortByDesc('score')->values();
 
-        // Места
+        // Places
         $rows = $rows->map(function ($r, $i) {
             $r->place = $i + 1;
 
@@ -106,8 +109,8 @@ class RatingPage extends Page
     }
 
     /**
-     * Рейтинг логистов — только для администратора: содержит доходы
-     * всех сотрудников компании (§16 — административный разрез).
+     * Logists rating — admin only: it contains the income
+     * of all company employees (§16 — administrative view).
      */
     public static function canAccess(): bool
     {

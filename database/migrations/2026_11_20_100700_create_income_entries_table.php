@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Начисления дохода логисту — основа «обнуления» дашборда по месяцам (ТЗ §15.5).
+ * Logist income accruals — the basis of the monthly dashboard "reset" (Spec §15.5).
  */
 return new class extends Migration
 {

@@ -11,10 +11,10 @@ use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 /**
- * Проверяет почтовый контур (ТЗ §7): наличие таблиц mail_domains /
- * mail_users / mail_aliases, их структуру (внешние ключи, уникальность)
- * и создание ящика с SHA512-CRYPT-хешем, совместимым с Dovecot.
- * Работает на sqlite :memory: (phpunit.xml), без боевой базы.
+ * Checks the mail stack (Spec §7): the existence of the mail_domains /
+ * mail_users / mail_aliases tables, their structure (foreign keys, uniqueness)
+ * and mailbox creation with a Dovecot-compatible SHA512-CRYPT hash.
+ * Runs on sqlite :memory: (phpunit.xml), no production DB.
  */
 class MailTablesTest extends TestCase
 {
@@ -49,7 +49,7 @@ class MailTablesTest extends TestCase
         $this->assertNotNull($domain, 'vitteza.ru mail domain not seeded');
 
         $user = User::create([
-            'name' => 'Тестов Тест Тестович',
+            'name' => 'Test User',
             'username' => 'testov',
             'email' => 'testov@vitteza.ru',
             'password' => 'Secret123!',
@@ -69,13 +69,13 @@ class MailTablesTest extends TestCase
             'is_active' => true,
         ]);
 
-        // Хеш SHA512-CRYPT с префиксом для Dovecot
+        // SHA512-CRYPT hash with the Dovecot prefix
         $this->assertStringStartsWith('{SHA512-CRYPT}$6$', $mailbox->password);
-        // Пароль в открытом виде нигде не хранится
+        // The plaintext password is never stored anywhere
         $this->assertNotSame('Secret123!', $mailbox->password);
-        // Maildir-путь по формату ТЗ §6.4: vitteza.ru/<local>/
+        // Maildir path per Spec §6.4: vitteza.ru/<local>/
         $this->assertSame('vitteza.ru/testov', Mailbox::maildirFor('testov@vitteza.ru'));
-        // Связи
+        // Relations
         $this->assertSame($user->id, $mailbox->user_id);
         $this->assertSame($domain->id, $mailbox->domain_id);
         $this->assertSame('testov', $mailbox->local_part);
@@ -86,7 +86,7 @@ class MailTablesTest extends TestCase
     {
         $domain = MailDomain::activeByName('vitteza.ru');
         $user = User::create([
-            'name' => 'Первый Пользователь',
+            'name' => 'First User',
             'username' => 'first',
             'email' => 'first@vitteza.ru',
             'password' => 'Secret123!',

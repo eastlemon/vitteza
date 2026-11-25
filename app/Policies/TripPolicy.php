@@ -6,9 +6,9 @@ use App\Models\Trip;
 use App\Models\User;
 
 /**
- * Доступ к рейсам по компетенциям (ТЗ §8.2, §8.3, §8.4).
- * Видимость своих/всех рейсов реализована через scope visibleTo() в модели Trip
- * и getEloquentQuery() в TripResource — политика даёт «доступ к разделу».
+ * Trip access by competencies (Spec §8.2, §8.3, §8.4).
+ * Own/all trip visibility is implemented via the visibleTo() scope on the Trip model
+ * and getEloquentQuery() in TripResource — the policy grants "section access".
  */
 class TripPolicy
 {

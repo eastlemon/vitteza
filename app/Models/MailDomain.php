@@ -5,9 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Почтовый домен из таблицы mail_domains (ТЗ §7.3).
- * Читается Postfix (virtual_mailbox_domains) и используется
- * ресурсом «Сотрудники» при создании ящиков.
+ * Mail domain from the mail_domains table (Spec §7.3).
+ * Read by Postfix (virtual_mailbox_domains) and used
+ * by the "Employees" resource when creating mailboxes.
  */
 class MailDomain extends Model
 {
@@ -27,7 +27,7 @@ class MailDomain extends Model
     ];
 
     /**
-     * Активный домен по имени (по умолчанию vitteza.ru) или null.
+     * Active domain by name (vitteza.ru by default) or null.
      */
     public static function activeByName(string $domain): ?self
     {

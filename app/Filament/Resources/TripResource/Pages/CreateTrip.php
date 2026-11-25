@@ -13,9 +13,9 @@ class CreateTrip extends CreateRecord
     protected static string $resource = TripResource::class;
 
     /**
-     * Создаёт рейс; если выбран шаблон груза — создаёт экземпляр груза из шаблона
-     * (§14.5), привязывает его к рейсу и при необходимости подставляет вес/объём.
-     * created_by = текущий пользователь.
+     * Creates a trip; if a cargo template is selected — creates a cargo instance from it
+     * (§14.5), attaches it to the trip and optionally fills in weight/volume.
+     * created_by = current user.
      */
     protected function handleRecordCreation(array $data): Model
     {

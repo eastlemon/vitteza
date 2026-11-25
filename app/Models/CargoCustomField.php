@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Определение настраиваемого поля груза (ТЗ §14.4).
+ * Custom cargo field definition (Spec §14.4).
  */
 class CargoCustomField extends Model
 {

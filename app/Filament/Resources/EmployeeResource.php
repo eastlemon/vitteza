@@ -26,24 +26,33 @@ class EmployeeResource extends Resource
 
     protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-users';
 
-    protected static ?string $navigationLabel = 'Сотрудники';
+    public static function getNavigationLabel(): string
+    {
+        return __('employees.nav');
+    }
 
-    protected static ?string $modelLabel = 'Сотрудник';
+    public static function getModelLabel(): string
+    {
+        return __('employees.model');
+    }
 
-    protected static ?string $pluralModelLabel = 'Сотрудники';
+    public static function getPluralModelLabel(): string
+    {
+        return __('employees.models');
+    }
 
     protected static ?int $navigationSort = 7;
 
-    /** Только администратор видит раздел «Сотрудники» (ТЗ §8.4). */
+    /** Only the administrator can see the "Employees" section (Spec §8.4). */
     public static function canViewAny(): bool
     {
         return auth()->user()?->isAdmin() === true;
     }
 
     /**
-     * У модели User нет политики, поэтому без явного override Filament в
-     * нестрогом режиме разрешал бы создание всем. Раздел административный —
-     * создаёт сотрудников только администратор.
+     * The User model has no policy, so without an explicit override Filament
+     * in non-strict mode would allow creation by everyone. The section is administrative —
+     * only the administrator can create employees.
      */
     public static function canCreate(): bool
     {
@@ -53,14 +62,14 @@ class EmployeeResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make('Основное')
+            Section::make(__('employees.section.main'))
                 ->schema([
                     TextInput::make('name')
-                        ->label('ФИО')
+                        ->label(__('common.full_name'))
                         ->required()
                         ->maxLength(180),
                     TextInput::make('username')
-                        ->label('Логин')
+                        ->label(__('common.login'))
                         ->required()
                         ->alphaNum()
                         ->maxLength(64)
@@ -68,57 +77,57 @@ class EmployeeResource extends Resource
                         ->live()
                         ->dehydrateStateUsing(fn ($state) => strtolower($state)),
                     Placeholder::make('derived_email')
-                        ->label('Логин для входа (система и почта)')
+                        ->label(__('employees.fields.login_hint'))
                         ->content(function ($get) {
                             $u = $get('username');
-                            return $u ? strtolower($u).'@vitteza.ru' : '— заполните логин —';
+                            return $u ? strtolower($u).'@vitteza.ru' : __('employees.fill_login_first');
                         }),
                     Select::make('role')
-                        ->label('Роль')
+                        ->label(__('common.role'))
                         ->options([
-                            'admin' => 'Администратор',
-                            'user' => 'Пользователь',
+                            'admin' => __('employees.roles.admin'),
+                            'user' => __('employees.roles.user'),
                         ])
                         ->default('user')
                         ->required(),
                     CheckboxList::make('competencies')
-                        ->label('Компетенции (для роли «Пользователь»)')
+                        ->label(__('employees.fields.competences'))
                         ->options([
-                            'trips.view' => 'Рейсы: просмотр',
-                            'trips.view_all' => 'Рейсы: видеть все (а не только свои)',
-                            'trips.manage' => 'Рейсы: управление',
-                            'drivers.view' => 'Водители: просмотр',
-                            'drivers.view_sensitive' => 'Водители: чувствительные поля',
-                            'drivers.manage' => 'Водители: управление',
-                            'customers.view' => 'Заказчики: просмотр',
-                            'customers.manage' => 'Заказчики: управление',
-                            'cargo.view' => 'Грузы: просмотр',
-                            'cargo.manage' => 'Грузы: управление',
-                            'logists.view' => 'Логисты: просмотр',
-                            'finance.view' => 'Финансы: просмотр',
+                            'trips.view' => __('employees.comps.trips_view'),
+                            'trips.view_all' => __('employees.comps.trips_view_all'),
+                            'trips.manage' => __('employees.comps.trips_manage'),
+                            'drivers.view' => __('employees.comps.drivers_view'),
+                            'drivers.view_sensitive' => __('employees.comps.drivers_view_sensitive'),
+                            'drivers.manage' => __('employees.comps.drivers_manage'),
+                            'customers.view' => __('employees.comps.customers_view'),
+                            'customers.manage' => __('employees.comps.customers_manage'),
+                            'cargo.view' => __('employees.comps.cargo_view'),
+                            'cargo.manage' => __('employees.comps.cargo_manage'),
+                            'logists.view' => __('employees.comps.logists_view'),
+                            'finance.view' => __('employees.comps.finance_view'),
                         ])
                         ->columns(2)
                         ->default([]),
                 ])->columns(2),
 
-            Section::make('Доступ и почта')
+            Section::make(__('employees.section.access'))
                 ->schema([
                     TextInput::make('password')
-                        ->label('Пароль')
+                        ->label(__('common.password'))
                         ->password()
                         ->revealable()
                         ->required(fn ($context) => $context === 'create')
                         ->dehydrated(fn ($state) => filled($state))
                         ->maxLength(255)
-                        ->helperText('Один пароль для входа в систему и для почты.'),
+                        ->helperText(__('employees.helpers.one_password')),
                     TextInput::make('quota_mb')
-                        ->label('Квота почтового ящика, MB')
+                        ->label(__('employees.fields.mail_quota'))
                         ->numeric()
                         ->default(2048)
                         ->minValue(256)
                         ->maxValue(10240),
                     Checkbox::make('create_mailbox')
-                        ->label('Создать почтовый ящик @vitteza.ru')
+                        ->label(__('employees.fields.create_mailbox'))
                         ->default(true)
                         ->visible(fn ($context) => $context === 'create'),
                 ])->columns(2),
@@ -129,22 +138,22 @@ class EmployeeResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name')->label('ФИО')->searchable()->sortable(),
+                TextColumn::make('name')->label(__('common.full_name'))->searchable()->sortable(),
                 TextColumn::make('email')->label('E-mail')->searchable(),
-                TextColumn::make('username')->label('Логин'),
+                TextColumn::make('username')->label(__('common.login')),
                 TextColumn::make('role')
-                    ->label('Роль')
+                    ->label(__('common.role'))
                     ->badge()
                     ->colors([
                         'danger' => 'admin',
                         'primary' => 'user',
                     ]),
-                BooleanColumn::make('is_active')->label('Активен'),
+                BooleanColumn::make('is_active')->label(__('common.active')),
             ])
             ->actions([
                 EditAction::make(),
                 Action::make('block')
-                    ->label('Блокировка')
+                    ->label(__('employees.cols.blocked'))
                     ->icon('heroicon-o-lock-closed')
                     ->requiresConfirmation()
                     ->action(fn (User $record) => static::toggleBlock($record)),

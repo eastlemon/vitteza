@@ -3,12 +3,12 @@
 
     <div class="flex items-center justify-between mb-4">
         <div>
-            <h2 class="text-xl font-semibold" style="font-family:var(--font-heading)">Рейтинг логистов — {{ $data['periodLabel'] }}</h2>
-            <p class="text-sm" style="color:#64748B">Веса: рейсы {{ $data['wTrips'] }} · доход {{ $data['wIncome'] }}. Участников за период: {{ $data['totalParticipants'] }}.</p>
+            <h2 class="text-xl font-semibold" style="font-family:var(--font-heading)">{{ __('rating.title') }} — {{ $data['periodLabel'] }}</h2>
+            <p class="text-sm" style="color:#64748B">{{ __('rating.weights_line', ['trips' => $data['wTrips'], 'income' => $data['wIncome']]) }} {{ __('rating.participants', ['count' => $data['totalParticipants']]) }}</p>
         </div>
         <div class="flex gap-2">
-            <button wire:click="prevPeriod" class="rounded-lg border px-3 py-1.5 text-sm" style="border-color:#E5E7EB">← Пред.</button>
-            <button wire:click="nextPeriod" class="rounded-lg border px-3 py-1.5 text-sm" style="border-color:#E5E7EB">След. →</button>
+            <button wire:click="prevPeriod" class="rounded-lg border px-3 py-1.5 text-sm" style="border-color:#E5E7EB">{{ __('common.prev_period') }}</button>
+            <button wire:click="nextPeriod" class="rounded-lg border px-3 py-1.5 text-sm" style="border-color:#E5E7EB">{{ __('common.next_period') }}</button>
         </div>
     </div>
 
@@ -16,12 +16,12 @@
         <table class="w-full text-sm">
             <thead style="background:#0B1220;color:#E6EDF5;font-family:var(--font-heading)">
                 <tr>
-                    <th class="text-center px-3 py-2">Место</th>
-                    <th class="text-left px-3 py-2">Логист</th>
-                    <th class="text-right px-3 py-2">Рейсов (оплачено)</th>
-                    <th class="text-right px-3 py-2">Доход логиста, ₽</th>
-                    <th class="text-right px-3 py-2">Доход компании, ₽</th>
-                    <th class="text-right px-3 py-2">Балл</th>
+                    <th class="text-center px-3 py-2">{{ __('rating.cols.place') }}</th>
+                    <th class="text-left px-3 py-2">{{ __('common.logistic') }}</th>
+                    <th class="text-right px-3 py-2">{{ __('rating.cols.trips_paid') }}</th>
+                    <th class="text-right px-3 py-2">{{ __('common.income_logist') }}</th>
+                    <th class="text-right px-3 py-2">{{ __('common.income_total') }}</th>
+                    <th class="text-right px-3 py-2">{{ __('rating.cols.score') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -35,7 +35,7 @@
                         <td class="px-3 py-2 text-right font-semibold">{{ number_format((float) $r->score, 2, ',', ' ') }}</td>
                     </tr>
                 @empty
-                    <tr><td colspan="6" class="px-3 py-6 text-center" style="color:#64748B">Нет данных за период</td></tr>
+                    <tr><td colspan="6" class="px-3 py-6 text-center" style="color:#64748B">{{ __('common.no_period_data') }}</td></tr>
                 @endforelse
             </tbody>
         </table>

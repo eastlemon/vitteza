@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Настраиваемые поля грузов (ТЗ §14.4) — определения и значения.
+ * Custom cargo fields (Spec §14.4) — definitions and values.
  */
 return new class extends Migration
 {

@@ -8,14 +8,17 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 
 /**
- * Настройки системы (ТЗ §15.4, §16.2): финансовая формула и веса рейтинга.
- * Доступ — только администратор. Livewire-форма (public-свойства + wire:model).
+ * System settings (Spec §15.4, §16.2): finance formula and rating weights.
+ * Access — admin only. Livewire form (public properties + wire:model).
  */
 class SettingsPage extends Page
 {
     protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-cog-6-tooth';
 
-    protected static ?string $navigationLabel = 'Настройки';
+    public static function getNavigationLabel(): string
+    {
+        return __('settings.nav');
+    }
 
     protected static ?string $slug = 'settings';
 
@@ -46,7 +49,7 @@ class SettingsPage extends Page
         Setting::set('rating_w_trips', $this->rating_w_trips);
         Setting::set('rating_w_income', $this->rating_w_income);
 
-        Notification::make()->title('Настройки сохранены')->success()->send();
+        Notification::make()->title(__('settings.saved'))->success()->send();
     }
 
     public static function canAccess(): bool

@@ -13,7 +13,7 @@ class ListTrips extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            // Видимость — по политике TripPolicy::create (админ / trips.manage).
+            // Visibility — via TripPolicy::create (admin / trips.manage).
             CreateAction::make(),
         ];
     }

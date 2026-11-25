@@ -6,7 +6,7 @@ use App\Models\CargoTemplate;
 use App\Models\User;
 
 /**
- * Доступ к грузам (шаблонам) по компетенциям (ТЗ §8.2, §8.4).
+ * Cargo (template) access by competencies (Spec §8.2, §8.4).
  */
 class CargoTemplatePolicy
 {

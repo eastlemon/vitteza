@@ -33,11 +33,20 @@ class TripResource extends Resource
 
     protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-map';
 
-    protected static ?string $navigationLabel = 'Рейсы';
+    public static function getNavigationLabel(): string
+    {
+        return __('trips.nav');
+    }
 
-    protected static ?string $modelLabel = 'Рейс';
+    public static function getModelLabel(): string
+    {
+        return __('trips.model');
+    }
 
-    protected static ?string $pluralModelLabel = 'Рейсы';
+    public static function getPluralModelLabel(): string
+    {
+        return __('trips.models');
+    }
 
     protected static ?int $navigationSort = 1;
 
@@ -47,61 +56,61 @@ class TripResource extends Resource
         $canFinance = $user && ($user->isAdmin() || $user->hasCompetency('finance.view'));
 
         return $schema->components([
-            Section::make('Рейс')
+            Section::make(__('trips.section.trip'))
                 ->schema([
-                    DatePicker::make('load_date')->label('Дата погрузки')->required(),
-                    DatePicker::make('unload_date')->label('Дата выгрузки'),
-                    TextInput::make('route')->label('Маршрут')->required()->maxLength(255)
-                        ->placeholder('Москва — Санкт-Петербург'),
-                    Select::make('logistic_id')->label('Логист')
+                    DatePicker::make('load_date')->label(__('trips.fields.load_date'))->required(),
+                    DatePicker::make('unload_date')->label(__('trips.fields.unload_date')),
+                    TextInput::make('route')->label(__('common.route'))->required()->maxLength(255)
+                        ->placeholder(__('trips.placeholder.route')),
+                    Select::make('logistic_id')->label(__('common.logistic'))
                         ->options(fn () => User::where('is_active', true)->orderBy('name')->pluck('name', 'id'))
                         ->searchable()->required(),
-                    Select::make('driver_id')->label('Водитель')
+                    Select::make('driver_id')->label(__('common.driver'))
                         ->options(fn () => Driver::where('is_active', true)->orderBy('full_name')->pluck('full_name', 'id'))
                         ->searchable(),
-                    Select::make('customer_id')->label('Заказчик')
+                    Select::make('customer_id')->label(__('common.customer'))
                         ->options(fn () => Customer::where('is_active', true)->orderBy('name')->pluck('name', 'id'))
                         ->searchable(),
                 ])->columns(2),
 
-            Section::make('Груз')
+            Section::make(__('trips.section.cargo'))
                 ->schema([
-                    Select::make('cargo_template_id')->label('Шаблон груза (подставить параметры)')
+                    Select::make('cargo_template_id')->label(__('trips.fields.cargo_template'))
                         ->options(fn () => CargoTemplate::where('is_active', true)->orderBy('name')->pluck('name', 'id'))
                         ->searchable()
-                        ->helperText('При выборе — параметры копируются в экземпляр груза рейса (§14.5).'),
-                    TextInput::make('weight_t')->label('Вес, т')->numeric()->step('0.01'),
-                    TextInput::make('volume_m3')->label('Объём, м³')->numeric()->step('0.01'),
+                        ->helperText(__('trips.helpers.cargo_template')),
+                    TextInput::make('weight_t')->label(__('common.weight_t'))->numeric()->step('0.01'),
+                    TextInput::make('volume_m3')->label(__('common.volume_m3'))->numeric()->step('0.01'),
                 ])->columns(3),
 
-            Section::make('Документы и оплата')
+            Section::make(__('trips.section.docs'))
                 ->schema([
-                    TextInput::make('contract_no')->label('Номер договора')->maxLength(80),
-                    TextInput::make('cost')->label('Стоимость, ₽')->numeric()->step('0.01')->default(0)
+                    TextInput::make('contract_no')->label(__('common.contract_no'))->maxLength(80),
+                    TextInput::make('cost')->label(__('common.cost'))->numeric()->step('0.01')->default(0)
                         ->visible($canFinance),
-                    TextInput::make('act_no')->label('Номер акта')->maxLength(80),
-                    DatePicker::make('sent_electronic_at')->label('Отправлено электронно'),
-                    DatePicker::make('sent_post_at')->label('Отправлено по почте'),
-                    Checkbox::make('delivered')->label('Вручено заказчику')->default(false),
-                    DatePicker::make('payment_due_date')->label('Срок оплаты')
+                    TextInput::make('act_no')->label(__('trips.fields.act_no'))->maxLength(80),
+                    DatePicker::make('sent_electronic_at')->label(__('trips.fields.sent_electronic_at')),
+                    DatePicker::make('sent_post_at')->label(__('trips.fields.sent_post_at')),
+                    Checkbox::make('delivered')->label(__('trips.fields.delivered'))->default(false),
+                    DatePicker::make('payment_due_date')->label(__('trips.fields.payment_due_date'))
                         ->visible($canFinance),
-                    DatePicker::make('payment_date')->label('Дата оплаты')
+                    DatePicker::make('payment_date')->label(__('trips.fields.payment_date'))
                         ->visible($canFinance),
-                    TextInput::make('payment_fact')->label('Оплата факт, ₽')->numeric()->step('0.01')->default(0)
+                    TextInput::make('payment_fact')->label(__('trips.fields.payment_fact'))->numeric()->step('0.01')->default(0)
                         ->visible($canFinance),
                 ])->columns(3),
 
-            Section::make('Статус и доход')
+            Section::make(__('trips.section.status'))
                 ->schema([
-                    Select::make('status')->label('Статус')
+                    Select::make('status')->label(__('common.status'))
                         ->options(TripStatus::options())
                         ->default('new')
                         ->required()
-                        ->helperText('При переходе в статус «Оплачен» доход начисляется в дашборд логиста (§10.5).'),
-                    TextInput::make('income_total')->label('Доход компании, ₽')->disabled()->visible($canFinance),
-                    TextInput::make('income_logist')->label('Доход логиста, ₽')->disabled()->visible($canFinance),
-                    Checkbox::make('paid_to_logist')->label('Доход начислен')->disabled(),
-                    Textarea::make('comment')->label('Комментарий')->rows(2)->columnSpanFull(),
+                        ->helperText(__('trips.helpers.status')),
+                    TextInput::make('income_total')->label(__('common.income_total'))->disabled()->visible($canFinance),
+                    TextInput::make('income_logist')->label(__('common.income_logist'))->disabled()->visible($canFinance),
+                    Checkbox::make('paid_to_logist')->label(__('trips.fields.paid_to_logist'))->disabled(),
+                    Textarea::make('comment')->label(__('common.comment'))->rows(2)->columnSpanFull(),
                 ])->columns(2),
         ]);
     }
@@ -110,14 +119,14 @@ class TripResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('load_date')->label('Погрузка')->date('d.m.Y')->sortable(),
-                TextColumn::make('logistic.name')->label('Логист')->sortable()->searchable(),
-                TextColumn::make('route')->label('Маршрут')->searchable()->limit(24),
-                TextColumn::make('customer.name')->label('Заказчик')->sortable()->toggleable(),
-                TextColumn::make('driver.full_name')->label('Водитель')->toggleable(),
-                TextColumn::make('cost')->label('Стоимость, ₽')->money('RUB')->sortable(),
+                TextColumn::make('load_date')->label(__('trips.cols.load_date'))->date('d.m.Y')->sortable(),
+                TextColumn::make('logistic.name')->label(__('common.logistic'))->sortable()->searchable(),
+                TextColumn::make('route')->label(__('common.route'))->searchable()->limit(24),
+                TextColumn::make('customer.name')->label(__('common.customer'))->sortable()->toggleable(),
+                TextColumn::make('driver.full_name')->label(__('common.driver'))->toggleable(),
+                TextColumn::make('cost')->label(__('common.cost'))->money('RUB')->sortable(),
                 TextColumn::make('status')
-                    ->label('Статус')
+                    ->label(__('common.status'))
                     ->badge()
                     ->colors([
                         'gray' => 'new',
@@ -130,22 +139,22 @@ class TripResource extends Resource
                         'danger' => 'cancelled',
                     ])
                     ->formatStateUsing(fn ($state) => TripStatus::labels()[$state] ?? $state),
-                TextColumn::make('income_logist')->label('Доход логиста, ₽')->money('RUB')->toggleable(),
-                TextColumn::make('unload_date')->label('Выгрузка')->date('d.m.Y')->toggleable(),
+                TextColumn::make('income_logist')->label(__('common.income_logist'))->money('RUB')->toggleable(),
+                TextColumn::make('unload_date')->label(__('trips.cols.unload_date'))->date('d.m.Y')->toggleable(),
             ])
             ->defaultSort('load_date', 'desc')
             ->filters([
-                SelectFilter::make('logistic_id')->label('Логист')
+                SelectFilter::make('logistic_id')->label(__('common.logistic'))
                     ->options(fn () => User::where('is_active', true)->pluck('name', 'id')),
-                SelectFilter::make('driver_id')->label('Водитель')
+                SelectFilter::make('driver_id')->label(__('common.driver'))
                     ->options(fn () => Driver::pluck('full_name', 'id')),
-                SelectFilter::make('customer_id')->label('Заказчик')
+                SelectFilter::make('customer_id')->label(__('common.customer'))
                     ->options(fn () => Customer::pluck('name', 'id')),
-                SelectFilter::make('status')->label('Статус')->options(TripStatus::options()),
-                Filter::make('load_date')->label('Период погрузки')
+                SelectFilter::make('status')->label(__('common.status'))->options(TripStatus::options()),
+                Filter::make('load_date')->label(__('trips.filters.load_period'))
                     ->form([
-                        DatePicker::make('from')->label('С'),
-                        DatePicker::make('until')->label('По'),
+                        DatePicker::make('from')->label(__('common.from')),
+                        DatePicker::make('until')->label(__('common.until')),
                     ])
                     ->query(fn (Builder $query, array $data) => $query
                         ->when($data['from'] ?? null, fn ($q, $v) => $q->whereDate('load_date', '>=', $v))
@@ -157,7 +166,7 @@ class TripResource extends Resource
     }
 
     /**
-     * Видимость рейсов (§8.3): админ / trips.view_all — все; иначе — только свои.
+     * Trip visibility (Spec §8.3): admin / trips.view_all — all trips; otherwise — own only.
      */
     public static function getEloquentQuery(): Builder
     {

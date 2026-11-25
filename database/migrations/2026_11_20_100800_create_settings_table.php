@@ -5,8 +5,8 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Параметризуемые настройки системы (ТЗ §15.4): финансовая формула,
- * веса рейтинга, статус-триггер дохода и т. п.
+ * Parameterized system settings (Spec §15.4): finance formula,
+ * rating weights, income trigger status, etc.
  */
 return new class extends Migration
 {
@@ -18,7 +18,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // Значения по умолчанию (ТЗ §15.4, §16.2).
+        // Default values (Spec §15.4, §16.2).
         \DB::table('settings')->insert([
             ['key' => 'income_share',          'value' => '0.20',  'created_at' => now(), 'updated_at' => now()],
             ['key' => 'logist_share',          'value' => '0.50',  'created_at' => now(), 'updated_at' => now()],

@@ -13,7 +13,7 @@ class ListCustomers extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            // Видимость — по политике CustomerPolicy::create (админ / customers.manage).
+            // Visibility — via CustomerPolicy::create (admin / customers.manage).
             CreateAction::make(),
         ];
     }

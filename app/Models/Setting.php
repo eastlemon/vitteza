@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Параметры системы (ТЗ §15.4, §16.2). Простой key→value.
+ * System parameters (Spec §15.4, §16.2). Simple key→value.
  */
 class Setting extends Model
 {

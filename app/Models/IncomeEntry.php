@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Начисление дохода логисту за рейс (ТЗ §15.5). По period_year/period_month
- * дашборд и рейтинг агрегируют данные — это и есть «обнуление» по месяцам.
+ * Logist income accrual for a trip (Spec §15.5). By period_year/period_month
+ * the dashboard and rating aggregate data — this is the monthly "reset".
  */
 class IncomeEntry extends Model
 {

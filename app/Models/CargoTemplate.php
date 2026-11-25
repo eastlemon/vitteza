@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Шаблон груза — типовой груз с параметрами (ТЗ §14.3).
+ * Cargo template — a typical cargo with parameters (Spec §14.3).
  */
 class CargoTemplate extends Model
 {

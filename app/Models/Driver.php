@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Водитель и закреплённый транспорт (ТЗ §11). Поля passport_data,
- * license_series_no, ip_requisites — чувствительные (§11.4).
+ * Driver and the assigned vehicle (Spec §11). The fields passport_data,
+ * license_series_no, ip_requisites are sensitive (§11.4).
  */
 class Driver extends Model
 {

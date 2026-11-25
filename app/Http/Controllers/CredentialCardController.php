@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 /**
- * Показывает карточку учётных данных сотрудника (логин/пароль системы и почты,
- * настройки IMAP/SMTP). Данные передаются через session flash из ресурса
- * «Сотрудники» в момент создания/сброса пароля — plaintext-пароли нигде не хранятся.
+ * Shows the employee credential card (system and mail login/password,
+ * IMAP/SMTP settings). Data is passed via session flash from the
+ * "Employees" resource at creation/password-reset time — plaintext passwords are never stored.
  */
 class CredentialCardController extends Controller
 {
@@ -16,10 +16,10 @@ class CredentialCardController extends Controller
         $creds = $request->session()->get('vitteza_creds');
 
         if (! $creds) {
-            abort(404, 'Карточка недоступна. Сгенерируйте её заново через карточку сотрудника.');
+            abort(404, __('credential.flash_missing'));
         }
 
-        // одноразовая — удалить после показа
+        // one-time — delete after showing
         $request->session()->forget('vitteza_creds');
 
         return view('credential-card', $creds);

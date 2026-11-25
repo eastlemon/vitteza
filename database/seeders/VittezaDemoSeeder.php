@@ -12,9 +12,9 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 
 /**
- * Демонстрационные данные для VITTEZA: логисты, водители, заказчики, шаблоны
- * грузов и рейсы (часть — в статусе paid, чтобы сработал income-триггер и
- * рейтинг/дашборд за текущий месяц были непустыми). Идемпотентен по числу рейсов.
+ * Demo data for VITTEZA: logists, drivers, customers, cargo
+ * templates and trips (some in the paid status, so the income trigger fires and
+ * the current-month rating/dashboard are non-empty). Idempotent by trip count.
  */
 class VittezaDemoSeeder extends Seeder
 {
@@ -45,14 +45,14 @@ class VittezaDemoSeeder extends Seeder
         $month = Carbon::now()->startOfMonth();
         $mk = fn (int $day) => $month->copy()->addDays($day - 1)->toDateString();
 
-        // Платные рейсы (сработает income-триггер → income_entries за текущий месяц)
+        // Paid trips (the income trigger fires → income_entries for the current month)
         $this->trip($logist1, $drivers[0], $cust1, $mk(3), 'Москва — Санкт-Петербург', 70000, 'paid', 'СМ-2026/01');
         $this->trip($logist1, $drivers[0], $cust1, $mk(7), 'Москва — Казань', 65000, 'paid', 'СМ-2026/01');
         $this->trip($logist1, $drivers[2], $cust2, $mk(11), 'Екатеринбург — Челябинск', 58000, 'paid', 'ПТ-2026/04');
         $this->trip($logist2, $drivers[1], $cust2, $mk(5), 'Москва — Нижний Новгород', 48000, 'paid', 'ПТ-2026/04');
         $this->trip($logist2, $drivers[1], $cust1, $mk(9), 'Тверь — Москва', 35000, 'paid', 'СМ-2026/01');
 
-        // Рейсы в других статусах
+        // Trips in other statuses
         $this->trip($logist1, $drivers[0], $cust2, $mk(14), 'Москва — Самара', 72000, 'in_progress', 'ПТ-2026/04');
         $this->trip($logist2, $drivers[2], $cust1, $mk(15), 'Москва — Ярославль', 30000, 'confirmed', 'СМ-2026/01');
         $this->trip($logist1, $drivers[0], $cust1, $mk(12), 'Москва — Тула', 22000, 'new', 'СМ-2026/01');

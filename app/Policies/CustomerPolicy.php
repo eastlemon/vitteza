@@ -6,7 +6,7 @@ use App\Models\Customer;
 use App\Models\User;
 
 /**
- * Доступ к заказчикам по компетенциям (ТЗ §8.2, §8.4).
+ * Customer access by competencies (Spec §8.2, §8.4).
  */
 class CustomerPolicy
 {

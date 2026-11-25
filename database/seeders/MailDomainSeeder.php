@@ -6,8 +6,8 @@ use App\Models\MailDomain;
 use Illuminate\Database\Seeder;
 
 /**
- * Создаёт почтовый домен vitteza.ru (ТЗ §7.3).
- * Запуск: php artisan db:seed --class=MailDomainSeeder --force
+ * Creates the vitteza.ru mail domain (Spec §7.3).
+ * Usage: php artisan db:seed --class=MailDomainSeeder --force
  */
 class MailDomainSeeder extends Seeder
 {

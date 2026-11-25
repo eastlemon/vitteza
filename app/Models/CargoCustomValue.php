@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Значение настраиваемого поля для конкретного груза (ТЗ §14.4).
+ * Custom field value for a specific cargo (Spec §14.4).
  */
 class CargoCustomValue extends Model
 {

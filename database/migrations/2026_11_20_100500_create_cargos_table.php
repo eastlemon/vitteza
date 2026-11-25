@@ -5,9 +5,9 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Экземпляры грузов в рейсах (ТЗ §14.6).
- * trip_id — без FK-ограничения, чтобы избежать цикла с trips.cargo_id
- * (обе связи создаются в одной транзакции приложения).
+ * Cargo instances in trips (Spec §14.6).
+ * trip_id — without an FK constraint to avoid a cycle with trips.cargo_id
+ * (both relations are created in one application transaction).
  */
 return new class extends Migration
 {

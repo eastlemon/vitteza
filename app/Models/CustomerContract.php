@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Договор заказчика (ТЗ §13.4). В рейсе «Номер договора» выбирается из активных договоров.
+ * Customer contract (Spec §13.4). In a trip the "Contract number" is chosen from active contracts.
  */
 class CustomerContract extends Model
 {

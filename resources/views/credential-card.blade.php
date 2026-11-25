@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Карточка учётных данных — {{ $name ?? '' }}</title>
+<title>{{ __('credential.title') }} — {{ $name ?? '' }}</title>
 <style>
   :root{
     --bg:#0B1220; --surface:#16243D; --light:#F3F4F6; --accent:#38BDF8;
@@ -70,58 +70,58 @@
 </head>
 <body>
 <div class="wrap">
-  <a class="btn" href="#" onclick="window.print();return=false;">🖨 Печать / Сохранить в PDF</a>
+  <a class="btn" href="#" onclick="window.print();return=false;">{{ __('credential.print') }}</a>
   <div class="card">
     <div class="head">
       <div class="logo">V</div>
-      <div class="brand">vitteza.ru<small>корпоративная система учёта перевозок</small></div>
+      <div class="brand">vitteza.ru<small>{{ __('credential.brand_sub') }}</small></div>
     </div>
     <div class="body">
       <p class="emp">{{ $name ?? '' }}</p>
-      <p class="sub">Карточка учётных данных сотрудника · {{ $date ?? now()->format('d.m.Y') }}</p>
+      <p class="sub">{{ __('credential.subtitle') }} · {{ $date ?? now()->format('d.m.Y') }}</p>
 
       <div class="sec">
-        <h3>Вход в систему</h3>
+        <h3>{{ __('credential.system_section') }}</h3>
         <div class="grid">
-          <span class="k">Адрес</span><span class="v">{{ $app_url ?? '' }}</span>
-          <span class="k">Логин</span><span class="v">{{ $login ?? '' }}</span>
-          <span class="k">Пароль</span><span class="v">{{ $app_password ?? '' }}</span>
+          <span class="k">{{ __('credential.address') }}</span><span class="v">{{ $app_url ?? '' }}</span>
+          <span class="k">{{ __('credential.login') }}</span><span class="v">{{ $login ?? '' }}</span>
+          <span class="k">{{ __('credential.password') }}</span><span class="v">{{ $app_password ?? '' }}</span>
         </div>
       </div>
 
       @if(!empty($mail_email))
       <div class="sec">
-        <h3>Корпоративная почта</h3>
+        <h3>{{ __('credential.mail_section') }}</h3>
         <div class="grid">
           <span class="k">E-mail</span><span class="v">{{ $mail_email }}</span>
-          <span class="k">Пароль</span><span class="v">{{ $mail_password ?? '' }}</span>
+          <span class="k">{{ __('credential.password') }}</span><span class="v">{{ $mail_password ?? '' }}</span>
         </div>
       </div>
 
       <div class="sec">
-        <h3>Настройки почтового клиента (Thunderbird / Outlook / мобильные)</h3>
+        <h3>{{ __('credential.client_section') }}</h3>
         <div class="grid">
-          <span class="k">Входящая IMAP</span><span class="v">imap.vitteza.ru · порт 993 · SSL/TLS</span>
-          <span class="k">Исходящая SMTP</span><span class="v">smtp.vitteza.ru · порт 465 SSL / 587 STARTTLS</span>
-          <span class="k">Логин почты</span><span class="v">{{ $mail_email }} (полный адрес)</span>
+          <span class="k">{{ __('credential.imap') }}</span><span class="v">{{ __('credential.imap_value') }}</span>
+          <span class="k">{{ __('credential.smtp') }}</span><span class="v">{{ __('credential.smtp_value') }}</span>
+          <span class="k">{{ __('credential.mail_login') }}</span><span class="v">{{ $mail_email }} {{ __('credential.full_address') }}</span>
         </div>
       </div>
 
       <div class="note">
-        <b>Через сборщик mail.ru / Яндекс:</b> зайдите в свой ящик на mail.ru или yandex.ru,
-        в настройках включите «Сборщик почты» / «Сбор почты» и добавьте внешний аккаунт
-        <b>{{ $mail_email }}</b> по IMAP (сервер <b>imap.vitteza.ru</b>, порт 993, SSL) —
-        корпоративная почта будет приходить в ваш привычный интерфейс.
+        <b>{{ __('credential.collector_title') }}</b> {{ __('credential.collector_p1') }}
+        {{ __('credential.collector_p2') }}
+        <b>{{ $mail_email }}</b> {{ __('credential.collector_p3') }}
+        {{ __('credential.collector_p4') }}
       </div>
       @endif
 
       <div class="note">
-        <b>Безопасность:</b> после первого входа рекомендуется сменить пароль.
-        Не передавайте эту карточку третьим лицам. При утере — обратитесь к администратору для сброса.
+        <b>{{ __('credential.security_title') }}</b> {{ __('credential.security_p1') }}
+        {{ __('credential.security_p2') }}
       </div>
     </div>
     <div class="foot">
-      <span>VITTEZA · сгенерировано системой учёта</span>
+      <span>VITTEZA · {{ __('credential.footer') }}</span>
       <span>{{ $date ?? now()->format('d.m.Y H:i') }}</span>
     </div>
   </div>

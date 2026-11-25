@@ -45,9 +45,9 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
-     * Доступ к Filament-панели (Filament v5 требует FilamentUser в production).
-     * Все активные сотрудники могут входить; доступ к разделам регулируется
-     * ролями/компетенциями через политики (ТЗ §8).
+     * Access to the Filament panel (Filament v5 requires FilamentUser in production).
+     * All active employees can log in; access to sections is governed
+     * by roles/competencies via policies (Spec §8).
      */
     public function canAccessPanel(Panel $panel): bool
     {
@@ -60,7 +60,7 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
-     * Доступ к компетенции. Администратору доступно всё.
+     * Competency access. The administrator has everything.
      */
     public function hasCompetency(string $key): bool
     {
@@ -72,9 +72,9 @@ class User extends Authenticatable implements FilamentUser
     }
 
     /**
-     * Связь с почтовым ящиком (mail_users.user_id).
-     * Таблица mail_users не является Eloquent-моделью по умолчанию,
-     * поэтому связь описана через query к DB.
+     * Mailbox relation (mail_users.user_id).
+     * The mail_users table is not an Eloquent model by default,
+     * so the relation is described via a DB query.
      */
     public function mailbox()
     {

@@ -43,9 +43,9 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
-                // AccountWidget («Добро пожаловать») не выводим: имя и выход
-                // доступны в юзер-меню топбара, дашборд начинается сразу
-                // с показателями VITTEZA.
+                // AccountWidget ("Welcome") is not rendered: the name and logout
+                // are available in the topbar user menu, the dashboard starts right away
+                // with VITTEZA metrics.
                 VittezaDashboardWidget::class,
             ])
             ->middleware([

@@ -16,10 +16,10 @@ class CreateEmployee extends CreateRecord
     protected static string $resource = EmployeeResource::class;
 
     /**
-     * Создаёт пользователя системы И почтовый ящик в одной транзакции.
-     * Пароль один и тот же: для системы — bcrypt (через 'hashed'-каст модели),
-     * для почты — SHA512-CRYPT (для Dovecot). Plaintext в БД не хранится,
-     * но flashed в session для одноразовой карточки учётных данных.
+     * Creates the system user AND the mailbox in a single transaction.
+     * The password is the same: for the system — bcrypt (via the model's 'hashed' cast),
+     * for mail — SHA512-CRYPT (for Dovecot). Plaintext is not stored in the DB,
+     * but flashed to the session for the one-time credential card.
      */
     protected function handleRecordCreation(array $data): Model
     {
@@ -44,8 +44,8 @@ class CreateEmployee extends CreateRecord
             if (! empty($data['create_mailbox'])) {
                 $domainRow = MailDomain::activeByName('vitteza.ru');
 
-                // Защита от рассинхронизации БД (домен не засеян) вместо
-                // падения на null->id: создаём домен идемпотентно.
+                // Protection against DB desync (domain not seeded) instead of
+                // crashing on null->id: create the domain idempotently.
                 if (! $domainRow) {
                     $domainRow = MailDomain::firstOrCreate(
                         ['domain' => 'vitteza.ru'],

@@ -3,7 +3,7 @@
 namespace App\Enums;
 
 /**
- * Статусы жизненного цикла рейса (ТЗ §10.4).
+ * Trip lifecycle statuses (Spec §10.4).
  */
 enum TripStatus: string
 {
@@ -16,18 +16,18 @@ enum TripStatus: string
     case PAID = 'paid';
     case CANCELLED = 'cancelled';
 
-    /** @return array<string,string> value => человекочитаемый label */
+    /** @return array<string,string> value => human-readable label */
     public static function labels(): array
     {
         return [
-            'new' => 'Новый',
-            'confirmed' => 'Подтверждён',
-            'in_progress' => 'В пути',
-            'completed' => 'Выполнен',
-            'docs_sent' => 'Документы отправлены',
-            'await_pay' => 'Ожидается оплата',
-            'paid' => 'Оплачен',
-            'cancelled' => 'Отменён',
+            'new' => __('trips.status.new'),
+            'confirmed' => __('trips.status.confirmed'),
+            'in_progress' => __('trips.status.in_progress'),
+            'completed' => __('trips.status.completed'),
+            'docs_sent' => __('trips.status.docs_sent'),
+            'await_pay' => __('trips.status.await_pay'),
+            'paid' => __('trips.status.paid'),
+            'cancelled' => __('trips.status.cancelled'),
         ];
     }
 

@@ -13,7 +13,7 @@ class ListDrivers extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            // Видимость — по политике DriverPolicy::create (админ / drivers.manage).
+            // Visibility — via DriverPolicy::create (admin / drivers.manage).
             CreateAction::make(),
         ];
     }

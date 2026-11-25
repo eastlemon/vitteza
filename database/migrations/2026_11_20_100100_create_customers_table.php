@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Справочник заказчиков и реквизиты для документооборота (ТЗ §13.5).
+ * Customers directory and document-flow requisites (Spec §13.5).
  */
 return new class extends Migration
 {

@@ -23,11 +23,20 @@ class DriverResource extends Resource
 
     protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-truck';
 
-    protected static ?string $navigationLabel = 'Водители';
+    public static function getNavigationLabel(): string
+    {
+        return __('drivers.nav');
+    }
 
-    protected static ?string $modelLabel = 'Водитель';
+    public static function getModelLabel(): string
+    {
+        return __('drivers.model');
+    }
 
-    protected static ?string $pluralModelLabel = 'Водители';
+    public static function getPluralModelLabel(): string
+    {
+        return __('drivers.models');
+    }
 
     protected static ?int $navigationSort = 2;
 
@@ -36,32 +45,32 @@ class DriverResource extends Resource
         $user = auth()->user();
 
         return $schema->components([
-            Section::make('Водитель и транспорт')
+            Section::make(__('drivers.section.main'))
                 ->schema([
-                    TextInput::make('full_name')->label('ФИО')->required()->maxLength(180),
-                    TextInput::make('plate_number')->label('Гос. номер машины')->maxLength(20),
-                    TextInput::make('phone')->label('Телефон')->maxLength(20),
-                    TextInput::make('vehicle_cert_no')->label('Номер свидетельства на авто (СТС)')->maxLength(40),
-                    TextInput::make('vehicle_owner')->label('Собственник авто')->maxLength(180),
-                    TextInput::make('capacity_t')->label('Тоннаж авто, т')->numeric()->step('0.01'),
-                    TextInput::make('volume_m3')->label('Объём кузова, м³')->numeric()->step('0.01'),
-                    TextInput::make('body_params')->label('Параметры кузова (Д×Ш×В, тип)')->maxLength(120),
-                    DatePicker::make('license_expiry')->label('Срок действия прав'),
-                    Checkbox::make('is_active')->label('Активен')->default(true),
+                    TextInput::make('full_name')->label(__('common.full_name'))->required()->maxLength(180),
+                    TextInput::make('plate_number')->label(__('drivers.fields.plate_number'))->maxLength(20),
+                    TextInput::make('phone')->label(__('common.phone'))->maxLength(20),
+                    TextInput::make('vehicle_cert_no')->label(__('drivers.fields.vehicle_cert_no'))->maxLength(40),
+                    TextInput::make('vehicle_owner')->label(__('drivers.fields.vehicle_owner'))->maxLength(180),
+                    TextInput::make('capacity_t')->label(__('drivers.fields.capacity_t'))->numeric()->step('0.01'),
+                    TextInput::make('volume_m3')->label(__('drivers.fields.volume_m3'))->numeric()->step('0.01'),
+                    TextInput::make('body_params')->label(__('drivers.fields.body_params'))->maxLength(120),
+                    DatePicker::make('license_expiry')->label(__('drivers.fields.license_expiry')),
+                    Checkbox::make('is_active')->label(__('common.active'))->default(true),
                 ])->columns(2),
 
-            Section::make('Документы (чувствительные, §11.4)')
+            Section::make(__('drivers.section.docs'))
                 ->schema([
-                    Textarea::make('passport_data')->label('Паспортные данные (серия, номер, кем и когда выдан)')->rows(2),
-                    TextInput::make('license_series_no')->label('Серия и номер прав')->maxLength(40),
-                    Textarea::make('ip_requisites')->label('Реквизиты ИП (ИНН, ОГРНИП, счёт, банк)')->rows(2),
+                    Textarea::make('passport_data')->label(__('drivers.fields.passport_data'))->rows(2),
+                    TextInput::make('license_series_no')->label(__('drivers.fields.license_series_no'))->maxLength(40),
+                    Textarea::make('ip_requisites')->label(__('drivers.fields.ip_requisites'))->rows(2),
                 ])
                 ->columns(1)
                 ->visible(fn () => $user && ($user->isAdmin() || $user->hasCompetency('drivers.view_sensitive'))),
 
-            Section::make('Заметки')
+            Section::make(__('common.notes'))
                 ->schema([
-                    Textarea::make('comment')->label('Внутренний комментарий')->rows(2),
+                    Textarea::make('comment')->label(__('drivers.fields.comment'))->rows(2),
                 ])->columns(1),
         ]);
     }
@@ -70,13 +79,13 @@ class DriverResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('full_name')->label('ФИО')->searchable()->sortable(),
-                TextColumn::make('plate_number')->label('Гос. номер')->searchable(),
-                TextColumn::make('phone')->label('Телефон'),
-                TextColumn::make('capacity_t')->label('Тоннаж, т')->sortable(),
-                TextColumn::make('volume_m3')->label('Объём, м³')->sortable(),
-                TextColumn::make('body_params')->label('Кузов')->toggleable(),
-                BooleanColumn::make('is_active')->label('Активен'),
+                TextColumn::make('full_name')->label(__('common.full_name'))->searchable()->sortable(),
+                TextColumn::make('plate_number')->label(__('drivers.cols.plate_number'))->searchable(),
+                TextColumn::make('phone')->label(__('common.phone')),
+                TextColumn::make('capacity_t')->label(__('drivers.cols.capacity_t'))->sortable(),
+                TextColumn::make('volume_m3')->label(__('drivers.cols.volume_m3'))->sortable(),
+                TextColumn::make('body_params')->label(__('drivers.cols.body_params'))->toggleable(),
+                BooleanColumn::make('is_active')->label(__('common.active')),
             ])
             ->defaultSort('full_name')
             ->actions([

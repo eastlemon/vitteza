@@ -13,8 +13,8 @@ class ListEmployees extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            // Раздел только для администратора (EmployeeResource::canViewAny),
-            // create — тоже явно через override canCreate в ресурсе.
+            // The section is admin-only (EmployeeResource::canViewAny),
+            // create — also explicitly via the canCreate override in the resource.
             CreateAction::make(),
         ];
     }

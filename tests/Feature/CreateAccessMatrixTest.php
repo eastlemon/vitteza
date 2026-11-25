@@ -7,23 +7,23 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
- * Матрица прав на создание записей и доступа к административным разделам.
- * (фикс: «ни в одной роли нет возможности создавать записи» — кнопка
- * CreateAction отсутствовала на List-страницах; логисты/рейтинг должны
- * быть доступны только админу; корень сайта ведёт сразу в /admin)
+ * Access matrix for record creation and administrative sections.
+ * (fix: "no role can create records" — the CreateAction
+ * button was missing on List pages; logists/rating must
+ * be admin-only; the site root goes straight to /admin)
  *
- * Каждый сценарий — отдельный тест-метод: middleware AuthenticateSession
- * хранит в сессии хэш пароля и разлогинивает при смене actingAs-пользователя
- * внутри одного метода.
+ * Each scenario is a separate test method: the AuthenticateSession middleware
+ * stores the password hash in the session and logs out when the actingAs user
+ * changes within a single method.
  *
- * Проверяет по каждому ресурсу:
- *   - Resource::canCreate() для админа / логиста с manage-компетенциями /
- *     логиста только с view-компетенциями;
- *   - HTTP GET List-страницы: 200 и наличие ссылки на /create у тех, кому
- *     можно; отсутствие ссылки и 403 на /create у тех, кому нельзя.
+ * For each resource checks:
+ *   - Resource::canCreate() for admin / a logist with manage-competencies /
+ *     a logist with view-only competencies;
+ *   - HTTP GET on List pages: 200 and the presence of a /create link for those allowed
+ *     to; no link and 403 on /create for those not allowed.
  *
- * А также: на дашборде больше нет AccountWidget («Добро пожаловать»),
- * но есть юзер-меню с выходом (fi-user-menu).
+ * Also: the dashboard no longer has AccountWidget ("Welcome"),
+ * but has the user menu with logout (fi-user-menu).
  */
 class CreateAccessMatrixTest extends TestCase
 {
@@ -32,7 +32,7 @@ class CreateAccessMatrixTest extends TestCase
     private function makeUser(string $email, string $role, array $competencies): User
     {
         return User::create([
-            'name' => 'Тест '.$email,
+            'name' => 'Test '.$email,
             'email' => $email,
             'username' => explode('@', $email)[0],
             'password' => 'password',
@@ -42,15 +42,15 @@ class CreateAccessMatrixTest extends TestCase
         ]);
     }
 
-    /** [label, resourceClass, listPath, manage-логисту можно создавать?] */
+    /** [label, resourceClass, listPath, can the manage-logist create?] */
     private function resources(): array
     {
         return [
-            'Рейсы'      => [\App\Filament\Resources\TripResource::class, '/admin/trips', true],
-            'Водители'   => [\App\Filament\Resources\DriverResource::class, '/admin/drivers', true],
-            'Заказчики'  => [\App\Filament\Resources\CustomerResource::class, '/admin/customers', true],
-            'Грузы'      => [\App\Filament\Resources\CargoTemplateResource::class, '/admin/cargo-templates', true],
-            'Сотрудники' => [\App\Filament\Resources\EmployeeResource::class, '/admin/employees', false],
+            'trips'      => [\App\Filament\Resources\TripResource::class, '/admin/trips', true],
+            'drivers'   => [\App\Filament\Resources\DriverResource::class, '/admin/drivers', true],
+            'customers'  => [\App\Filament\Resources\CustomerResource::class, '/admin/customers', true],
+            'cargo-templates'      => [\App\Filament\Resources\CargoTemplateResource::class, '/admin/cargo-templates', true],
+            'employees' => [\App\Filament\Resources\EmployeeResource::class, '/admin/employees', false],
         ];
     }
 
@@ -67,7 +67,7 @@ class CreateAccessMatrixTest extends TestCase
             $this->assertStringContainsString(
                 $listPath.'/create',
                 $resp->getContent(),
-                "$label: на List-странице админа нет ссылки на /create",
+                "$label: no /create link on the admin List page",
             );
 
             $respCreate = $this->get($listPath.'/create');
@@ -92,13 +92,13 @@ class CreateAccessMatrixTest extends TestCase
                 $this->assertStringContainsString(
                     $listPath.'/create',
                     $resp->getContent(),
-                    "$label: manage-логист должен видеть кнопку создания",
+                    "$label: the manage-logist must see the create button",
                 );
                 $respCreate = $this->get($listPath.'/create');
                 $this->assertSame(200, $respCreate->status(), "$label: manage GET {$listPath}/create");
             } else {
-                // «Сотрудники» — административный раздел
-                $this->assertSame(403, $resp->status(), "$label: manage GET $listPath должен быть 403");
+                // "Employees" — an administrative section
+                $this->assertSame(403, $resp->status(), "$label: manage GET $listPath must be 403");
             }
         }
     }
@@ -111,20 +111,20 @@ class CreateAccessMatrixTest extends TestCase
         $this->actingAs($viewer);
 
         foreach ($this->resources() as $label => [$resourceClass, $listPath]) {
-            $this->assertFalse($resourceClass::canCreate(), "$label: viewer canCreate должен быть false");
+            $this->assertFalse($resourceClass::canCreate(), "$label: viewer canCreate must be false");
 
             $resp = $this->get($listPath);
             if ($resp->status() === 200) {
                 $this->assertStringNotContainsString(
                     $listPath.'/create',
                     $resp->getContent(),
-                    "$label: viewer не должен видеть кнопку создания",
+                    "$label: the viewer must not see the create button",
                 );
 
                 $respCreate = $this->get($listPath.'/create');
-                $this->assertSame(403, $respCreate->status(), "$label: viewer GET create должен быть 403");
+                $this->assertSame(403, $respCreate->status(), "$label: viewer GET create must be 403");
             } else {
-                $this->assertSame(403, $resp->status(), "$label: viewer GET $listPath — 200 или 403, получено {$resp->status()}");
+                $this->assertSame(403, $resp->status(), "$label: viewer GET $listPath — 200 or 403, got {$resp->status()}");
             }
         }
     }
@@ -137,18 +137,18 @@ class CreateAccessMatrixTest extends TestCase
         $this->assertSame(200, $resp->status());
 
         $content = $resp->getContent();
-        $this->assertStringNotContainsString('Добро пожаловать', $content, 'AccountWidget должен быть убран с дашборда');
-        $this->assertStringNotContainsString('fi-account-widget', $content, 'CSS-класс AccountWidget не должен присутствовать');
+        $this->assertStringNotContainsString('Добро пожаловать', $content, 'AccountWidget must be removed from the dashboard');
+        $this->assertStringNotContainsString('fi-account-widget', $content, 'The AccountWidget CSS class must not be present');
 
-        // Юзер-меню с выходом остаётся в топбаре. Проверяем без привязки
-        // к локали: 'logout' — имя действия/URL, а не перевод.
-        $this->assertStringContainsString('fi-user-menu', $content, 'Юзер-меню топбара должно остаться');
-        $this->assertStringContainsString('logout', $content, 'Действие выхода должно остаться доступным');
+        // The user menu with logout stays in the topbar. We check without
+        // tying to the locale: 'logout' is an action/URL name, not a translation.
+        $this->assertStringContainsString('fi-user-menu', $content, 'The topbar user menu must remain');
+        $this->assertStringContainsString('logout', $content, 'The logout action must remain available');
     }
 
     /**
-     * «Логисты» и «Рейтинг» — административные разделы: обычный
-     * (не-админ) пользователь не должен их видеть даже в меню.
+     * "Logists" and "Rating" are administrative sections: a regular
+     * (non-admin) user must not see them even in the menu.
      */
     public function test_admin_can_access_logists_and_rating(): void
     {
@@ -161,7 +161,7 @@ class CreateAccessMatrixTest extends TestCase
 
     public function test_logists_and_rating_are_forbidden_for_non_admin(): void
     {
-        // Логист с широчайшими компетенциями — но НЕ админ
+        // A logist with the widest competencies — but NOT an admin
         $logist = $this->makeUser('logist@test.ru', 'user', [
             'trips.view', 'trips.view_all', 'trips.manage', 'finance.view',
             'logists.view', 'drivers.view', 'customers.view', 'cargo.view',
@@ -170,24 +170,24 @@ class CreateAccessMatrixTest extends TestCase
 
         foreach (['/admin/logists', '/admin/rating'] as $path) {
             $resp = $this->get($path);
-            $this->assertSame(403, $resp->status(), "logist GET $path должен быть 403, получено {$resp->status()}");
+            $this->assertSame(403, $resp->status(), "logist GET $path must be 403, got {$resp->status()}");
         }
 
-        // И в сайдбаре разделов быть не должно
+        // And there must be no sections in the sidebar
         $resp = $this->get('/admin');
         $this->assertSame(200, $resp->status());
-        $this->assertStringNotContainsString('href="/admin/logists"', $resp->getContent(), 'ссылка «Логисты» не должна быть в меню логиста');
-        $this->assertStringNotContainsString('href="/admin/rating"', $resp->getContent(), 'ссылка «Рейтинг» не должна быть в меню логиста');
+        $this->assertStringNotContainsString('href="/admin/logists"', $resp->getContent(), 'the "Logists" link must not be in the logist menu');
+        $this->assertStringNotContainsString('href="/admin/rating"', $resp->getContent(), 'the "Rating" link must not be in the logist menu');
     }
 
-    /** Корень сайта редиректит на админку (а гость — на форму входа). */
+    /** The site root redirects to the admin panel (a guest — to the login form). */
     public function test_root_redirects_to_admin(): void
     {
         $resp = $this->get('/');
-        $this->assertSame(301, $resp->status(), 'GET / должен дать 301');
-        $this->assertSame('/admin', $resp->headers->get('Location'), 'редирект должен вести на /admin');
+        $this->assertSame(301, $resp->status(), 'GET / must return 301');
+        $this->assertSame('/admin', $resp->headers->get('Location'), 'the redirect must go to /admin');
 
-        // Залогиненный админ тоже уходит на /admin (уже в панель)
+        // A logged-in admin also goes to /admin (already inside the panel)
         $admin = $this->makeUser('admin@test.ru', 'admin', []);
         $resp = $this->actingAs($admin)->get('/');
         $this->assertSame(301, $resp->status());

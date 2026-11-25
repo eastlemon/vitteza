@@ -9,9 +9,9 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Рейс — центральная сущность учёта перевозок (ТЗ §10).
- * Хранит статус жизненного цикла; при переходе в статус-триггер (по умолчанию `paid`)
- * начисляется доход логисту и создаётся запись в income_entries (§10.5, §15.5).
+ * Trip — the central transport accounting entity (Spec §10).
+ * Stores the lifecycle status; on transition to the trigger status (default `paid`)
+ * logist income is accrued and an income_entries record is created (§10.5, §15.5).
  */
 class Trip extends Model
 {
@@ -71,8 +71,8 @@ class Trip extends Model
     }
 
     /**
-     * Триггер начисления дохода при сохранении (§10.5, §15.5).
-     * Идемпотентен: срабатывает один раз при первом переходе в статус-триггер.
+     * Income accrual trigger on save (§10.5, §15.5).
+     * Idempotent: fires once on the first transition to the trigger status.
      */
     protected static function booted(): void
     {
@@ -97,7 +97,7 @@ class Trip extends Model
         $logist = round($total * $logistShare, 2);
 
         DB::transaction(function () use ($total, $logist) {
-            // Отмечаем без повторного вызова saved-триггера начисления.
+            // Mark without re-firing the saved accrual trigger.
             $this->paid_to_logist = true;
             $this->income_total = $total;
             $this->income_logist = $logist;
@@ -115,7 +115,7 @@ class Trip extends Model
     }
 
     /**
-     * Видимость рейсов (§8.3): админ — все; user с trips.view_all — все; иначе — только свои.
+     * Trip visibility (§8.3): admin — all; user with trips.view_all — all; otherwise — own only.
      */
     public function scopeVisibleTo($query, User $user)
     {

@@ -5,9 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Почтовый ящик сотрудника в таблице mail_users (читается Postfix/Dovecot).
- * Поле password хранит SHA512-CRYPT хеш для Dovecot — БЕЗ 'hashed'-каста,
- * мы записываем туда заранее вычисленный хеш.
+ * Employee mailbox in the mail_users table (read by Postfix/Dovecot).
+ * The password field stores a SHA512-CRYPT hash for Dovecot — WITHOUT the 'hashed' cast,
+ * we write a pre-computed hash there.
  */
 class Mailbox extends Model
 {
@@ -32,8 +32,8 @@ class Mailbox extends Model
     ];
 
     /**
-     * SHA512-CRYPT хеш, совместимый с Dovecot (default_pass_scheme = SHA512-CRYPT).
-     * Возвращает значение с префиксом {SHA512-CRYPT}, как у doveadm pw.
+     * SHA512-CRYPT hash compatible with Dovecot (default_pass_scheme = SHA512-CRYPT).
+     * Returns the value with the {SHA512-CRYPT} prefix, like doveadm pw.
      */
     public static function makeSha512CryptHash(string $plain): string
     {
@@ -44,7 +44,7 @@ class Mailbox extends Model
     }
 
     /**
-     * Путь maildir для email: vitteza.ru/<local-part>
+     * Maildir path for an email: vitteza.ru/<local-part>
      */
     public static function maildirFor(string $email): string
     {

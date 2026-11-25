@@ -5,8 +5,8 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Динамические поля вкладок (ТЗ §17.5) — код вкладки, код поля, label, тип,
- * видимость, порядок. Filament-ресурсы могут строить схему формы/колонок из этой таблицы.
+ * Dynamic tab fields (Spec §17.5) — tab code, field code, label, type,
+ * visibility, order. Filament resources can build the form/column schema from this table.
  */
 return new class extends Migration
 {

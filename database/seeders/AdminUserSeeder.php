@@ -6,8 +6,8 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 
 /**
- * Создаёт первого администратора системы.
- * Запуск: php artisan db:seed --class=AdminUserSeeder --force
+ * Creates the first system administrator.
+ * Usage: php artisan db:seed --class=AdminUserSeeder --force
  */
 class AdminUserSeeder extends Seeder
 {
@@ -18,7 +18,7 @@ class AdminUserSeeder extends Seeder
             [
                 'name' => 'Администратор VITTEZA',
                 'username' => 'admin',
-                'password' => env('APP_ADMIN_PASSWORD', 'password'),  // 'hashed'-каст bcrypt'нет
+                'password' => env('APP_ADMIN_PASSWORD', 'password'),  // 'hashed' cast → bcrypt
                 'role' => 'admin',
                 'is_active' => true,
                 'competencies' => [],

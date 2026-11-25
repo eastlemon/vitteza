@@ -13,9 +13,9 @@ class EditEmployee extends EditRecord
     protected static string $resource = EmployeeResource::class;
 
     /**
-     * Сохраняет изменения сотрудника. Если заполнен пароль — обновляет пароль
-     * системы (bcrypt) и почтового ящика (SHA512-CRYPT) и формирует карточку
-     * учётных данных.
+     * Saves employee changes. If a password is filled — updates the password
+     * of the system (bcrypt) and of the mailbox (SHA512-CRYPT) and builds
+     * the credential card.
      */
     protected function handleRecordUpdate(Model $record, array $data): Model
     {

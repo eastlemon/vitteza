@@ -13,7 +13,7 @@ class ListCargoTemplates extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            // Видимость — по политике CargoTemplatePolicy::create (админ / cargo.manage).
+            // Visibility — via CargoTemplatePolicy::create (admin / cargo.manage).
             CreateAction::make(),
         ];
     }

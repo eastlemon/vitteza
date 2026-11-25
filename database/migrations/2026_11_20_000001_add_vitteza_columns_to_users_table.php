@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Расширяет стандартную таблицу users Laravel под нужды VITTEZA:
+ * Extends the standard Laravel users table for VITTEZA needs:
  * username, role (admin|user), is_active, competencies (JSON), last_login_at.
  */
 return new class extends Migration

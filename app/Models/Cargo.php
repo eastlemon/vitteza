@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Экземпляр груза в рейсе — переопределяемые значения шаблона (ТЗ §14.2/§14.6).
+ * Cargo instance in a trip — overridable template values (Spec §14.2/§14.6).
  */
 class Cargo extends Model
 {
@@ -29,7 +29,7 @@ class Cargo extends Model
     }
 
     /**
-     * Создаёт экземпляр из шаблона, копируя все параметры (ТЗ §14.5).
+     * Creates an instance from a template, copying all parameters (Spec §14.5).
      */
     public static function fromTemplate(CargoTemplate $tpl, ?int $tripId = null): self
     {

@@ -10,16 +10,16 @@ use Filament\Widgets\Widget;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Главный дашборд VITTEZA (ТЗ §15): период = календарный месяц с переключателем
- * (§15.3 «обнуление» = смена расчётного окна). Виджеты: число рейсов, доход
- * логиста, доход компании, график по дням, календарь с подсветкой, топ заказчиков,
- * последние рейсы. Администратору — доп. показатели (§15.6).
+ * VITTEZA main dashboard (Spec §15): period = calendar month with a switcher
+ * (§15.3 "reset" = changing the calculation window). Widgets: trip count,
+ * logist income, company income, per-day chart, calendar with highlighting, top customers,
+ * latest trips. Extra metrics for the administrator (§15.6).
  */
 class VittezaDashboardWidget extends Widget
 {
     protected static bool $isDiscovered = false;
 
-    /** Главный дашборд рендерится сразу, без lazy-плейсхолдера. */
+    /** The main dashboard renders immediately, without a lazy placeholder. */
     protected static ?bool $isLazyLoaded = false;
 
     protected int | string | array $columnSpan = 'full';
@@ -71,7 +71,7 @@ class VittezaDashboardWidget extends Widget
         $end = $start->copy()->endOfMonth();
         $daysInMonth = (int) $start->daysInMonth;
 
-        // Базовый запрос рейсов за период (для пользователя — только свои)
+        // Base trip query for the period (for a user — own trips only)
         $tripQuery = Trip::query()
             ->whereBetween('load_date', [$start->toDateString(), $end->toDateString()]);
         if (! $isAdmin && $user) {
@@ -81,7 +81,7 @@ class VittezaDashboardWidget extends Widget
         $tripsCount = (clone $tripQuery)->count();
         $totalCost = (float) (clone $tripQuery)->sum('cost');
 
-        // Доход — из income_entries за период (только оплаченные рейсы, §15.5)
+        // Income — from income_entries for the period (paid trips only, §15.5)
         $incomeQuery = IncomeEntry::query()
             ->where('period_year', $this->year)
             ->where('period_month', $this->month);
@@ -91,8 +91,8 @@ class VittezaDashboardWidget extends Widget
         $incomeLogist = (float) (clone $incomeQuery)->sum('income_logist');
         $incomeTotal = (float) (clone $incomeQuery)->sum('income_total');
 
-        // По дням месяца: число рейсов + доход логиста (по load_date).
-        // DAYOFMONTH(): MySQL-диалект — SQLite из проекта удалён, прод и тесты на MySQL.
+        // Per day of month: trip count + logist income (by load_date).
+        // DAYOFMONTH(): MySQL dialect — SQLite is removed from the project, prod and tests are on MySQL.
         $byDayRows = (clone $tripQuery)
             ->selectRaw("DAYOFMONTH(load_date) as d, COUNT(*) as cnt, COALESCE(SUM(income_logist),0) as inc")
             ->groupBy(DB::raw('DAYOFMONTH(load_date)'))
@@ -110,7 +110,7 @@ class VittezaDashboardWidget extends Widget
         $maxTrips = max(array_map(fn ($x) => $x['trips'], $days)) ?: 1;
         $maxIncome = max(array_map(fn ($x) => $x['income'], $days)) ?: 1;
 
-        // Календарь: подсветка дней с завершёнными/оплаченными рейсами (§15.3)
+        // Calendar: highlight days with completed/paid trips (§15.3)
         $completedStatuses = ['completed', 'paid'];
         $calRows = (clone $tripQuery)
             ->whereIn('status', $completedStatuses)
@@ -122,11 +122,11 @@ class VittezaDashboardWidget extends Widget
             $calendarCounts[$d] = (int) ($calRows[$d] ?? 0);
         }
 
-        // Сетка календаря (понедельник — первый день)
+        // Calendar grid (Monday is the first day)
         $firstWeekday = (int) $start->dayOfWeekIso; // 1=Mon..7=Sun
         $leadingBlanks = $firstWeekday - 1;
 
-        // Топ заказчиков по стоимости за период
+        // Top customers by cost for the period
         $topCustomers = (clone $tripQuery)
             ->join('customers', 'customers.id', '=', 'trips.customer_id')
             ->select(
@@ -140,14 +140,14 @@ class VittezaDashboardWidget extends Widget
             ->limit(5)
             ->get();
 
-        // Последние 10 рейсов
+        // Latest 10 trips
         $recentQ = Trip::query()->with(['logistic', 'customer', 'driver'])->latest('created_at');
         if (! $isAdmin && $user) {
             $recentQ->where('logistic_id', $user->id);
         }
         $recentTrips = $recentQ->limit(10)->get();
 
-        // Рейсы выбранного дня (клик по календарю)
+        // Trips of the selected day (calendar click)
         $selectedDayTrips = collect();
         if ($this->selectedDay) {
             $date = Carbon::createFromDate($this->year, $this->month, $this->selectedDay)->toDateString();
@@ -158,7 +158,7 @@ class VittezaDashboardWidget extends Widget
             $selectedDayTrips = $sq->orderBy('route')->get();
         }
 
-        // Доп. показатели администратора (§15.6)
+        // Extra administrator metrics (§15.6)
         $adminExtras = null;
         if ($isAdmin) {
             $unfinished = (clone $tripQuery)->whereNotIn('status', ['paid', 'cancelled'])->count();

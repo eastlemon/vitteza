@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * История договоров заказчика (ТЗ §13.4/§13.5).
+ * Customer contract history (Spec §13.4/§13.5).
  */
 return new class extends Migration
 {

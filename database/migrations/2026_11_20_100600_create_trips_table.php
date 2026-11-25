@@ -5,8 +5,8 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Рейсы — центральная сущность учёта перевозок (ТЗ §10.6).
- * cargo_id — без FK-ограничения (цикл с cargos.trip_id, см. миграцию cargos).
+ * Trips — the central transport accounting entity (Spec §10.6).
+ * cargo_id — without an FK constraint (cycle with cargos.trip_id, see the cargos migration).
  */
 return new class extends Migration
 {

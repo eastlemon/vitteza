@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Заказчик — организация (ТЗ §13).
+ * Customer — an organization (Spec §13).
  */
 class Customer extends Model
 {
